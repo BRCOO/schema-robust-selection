@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+data/
+artifacts/
+tmp/
+tools/spmf/*.jar
+paper/
+.pytest_cache/

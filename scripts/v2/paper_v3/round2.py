@@ -349,6 +349,7 @@ def seed_table() -> pd.DataFrame:
             rec["targets"] = float(np.mean(list(tg.values())))
             rec["eicu"], rec["hirid"] = tg["eicu"], tg["hirid"]
             rec["controlled"] = float(np.mean([tg[t] for t in CONTROLLED]))
+            rec.update({t: tg[t] for t in CONTROLLED})
             rows.append(rec)
     S0 = pd.DataFrame(rows)
     # seed-0 rows of the registries the real-target analysis did not cover (the likelihood versions), from the E3 rows
@@ -361,15 +362,15 @@ def seed_table() -> pd.DataFrame:
         tg = {t: float(r[f"{t}_auprc"]) for t in REAL + CONTROLLED}
         extra.append({"run": run, "registry": r.registry, "seed": 0, "internal": float(r.internal_auprc),
                       "real": float(np.mean([tg[t] for t in REAL])), "targets": float(np.mean(list(tg.values()))), "eicu": tg["eicu"],
-                      "hirid": tg["hirid"], "controlled": float(np.mean([tg[t] for t in CONTROLLED]))})
+                      "hirid": tg["hirid"], "controlled": float(np.mean([tg[t] for t in CONTROLLED])), **{t: tg[t] for t in CONTROLLED}})
     S0 = pd.concat([S0, pd.DataFrame(extra)], ignore_index=True)
     frames = [pd.read_csv(f) for f in glob.glob(str(ART / "seed_replicates/**/rows*.csv"), recursive=True)]
     R = pd.concat(frames, ignore_index=True).drop_duplicates(["run", "registry", "seed"])
     R["real"] = R[[f"{t}_auprc" for t in REAL]].mean(axis=1)
     R["targets"] = R[[f"{t}_auprc" for t in REAL + CONTROLLED]].mean(axis=1)
     R["controlled"] = R[[f"{t}_auprc" for t in CONTROLLED]].mean(axis=1)
-    R = R.rename(columns={"internal_auprc": "internal", "eicu_auprc": "eicu", "hirid_auprc": "hirid"})
-    R = R[["run", "registry", "seed", "internal", "real", "targets", "eicu", "hirid", "controlled"]]
+    R = R.rename(columns={"internal_auprc": "internal", "eicu_auprc": "eicu", "hirid_auprc": "hirid", **{f"{t}_auprc": t for t in CONTROLLED}})
+    R = R[["run", "registry", "seed", "internal", "real", "targets", "eicu", "hirid", "controlled", *CONTROLLED]]
     return pd.concat([S0, R], ignore_index=True)
 
 

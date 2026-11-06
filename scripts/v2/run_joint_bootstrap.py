@@ -11,7 +11,8 @@ multiplicity per replicate, shared by every run, dataset and registry in which t
   paper (``run_union_ap.deploy``); labels, patient ids and probabilities per dataset to artifacts/v2/joint_bootstrap/<root>/<label>.npz.
 * ``--phase boot``: B replicates of weighted average precision (sklearn's definition, ties grouped) per run, dataset and
   registry; artifacts/v2/joint_bootstrap/boot.npz.
-* ``--phase summarize``: differences of means over the 16 runs (CV-based selectors averaged over their seeds, as in Table 2)
+* ``--phase summarize``: differences of means over the 16 runs (CV-based selectors averaged over their seeds, as in Table 2;
+  every point value is the paper's, from q2_seeds_long.csv; the dump only supplies the bootstrap variation)
   with 95% intervals: point +- 1.96 sqrt(bootstrap variance of the seed-0 difference + between-seed variance of each
   seed mean); paper/v3_assets/source_data/q3_joint.csv.
 
@@ -239,7 +240,7 @@ PAIRS_DEFAULT = (
     # SRS+T against every comparator of Table 2
     *[("srs_ap_t", m) for m in METHODS if m != "srs_ap_t"],
     # the pre-specified likelihood versions against NMIFS and mRMR
-    ("srs_c_val", "nmifs"), ("srs_c_val", "mrmr"), ("srs_c_unknown_val", "nmifs"),
+    ("srs_c_val", "nmifs"), ("srs_c_val", "mrmr"), ("srs_c_unknown_val", "nmifs"), ("srs_ap", "nmifs"), ("srs_ap", "mrmr"),
     # stepwise decomposition NMIFS -> SRS+T, and the AUPRC decision added last
     ("fs_cv", "nmifs"), ("srs_ap_unaware", "fs_cv"), ("srs_ap", "srs_ap_unaware"),
 )
@@ -267,7 +268,7 @@ def phase_summarize(args) -> None:
     seeds = {}
     for (run, reg), grp in T.groupby(["run", "registry"]):
         seeds[(run, reg)] = grp
-    rows = []
+    rows, per_run = [], []
     for a, b in PAIRS_DEFAULT:
         if a not in mi or b not in mi:
             continue
@@ -283,8 +284,11 @@ def phase_summarize(args) -> None:
                 for m, sign in ((a, 1.0), (b, -1.0)):
                     grp = seeds.get((run, m))
                     col = e if grp is not None and e in grp else None
-                    if grp is None or col is None or grp.seed.nunique() < 2:
+                    if grp is None or col is None:
                         val = endpoint_values(point[r], datasets, e)[mi[m]]
+                        n_seeds[m] = min(n_seeds.get(m, 1), 1)
+                    elif grp.seed.nunique() < 2:
+                        val = float(grp[col].iloc[0])  # the paper's (seed-0) value, as in phase_verdicts and the tables
                         n_seeds[m] = min(n_seeds.get(m, 1), 1)
                     else:
                         x = grp[col].to_numpy(dtype=float)
@@ -301,12 +305,15 @@ def phase_summarize(args) -> None:
             run_var = np.var(v_boot[:, :, mi[a]] - v_boot[:, :, mi[b]], axis=0, ddof=1) + seed_var_runs(seeds, runs, a, b, e)
             lo_r, hi_r = np.array(means) - 1.96 * np.sqrt(run_var), np.array(means) + 1.96 * np.sqrt(run_var)
             tally = f"{int((lo_r > 0).sum())}/{int(((lo_r <= 0) & (hi_r >= 0)).sum())}/{int((hi_r < 0).sum())}"
+            for r, run in enumerate(runs):
+                per_run.append({"a": a, "b": b, "endpoint": e, "run": run, "diff": float(means[r]), "se": float(math.sqrt(run_var[r]))})
             rows.append({"a": a, "b": b, "endpoint": e, "point": est, "low": est - 1.96 * se, "high": est + 1.96 * se,
                          "se_boot": math.sqrt(var_boot), "se_seed": math.sqrt(var_seed), "point_seed0": float(d0.mean()),
                          "boot_pct_low": float(lo_p), "boot_pct_high": float(hi_p), **re, "tally": tally, "n_runs": len(runs),
                          "n_seeds_a": n_seeds.get(a, 1), "n_seeds_b": n_seeds.get(b, 1), "n_boot": len(boot)})
     R = pd.DataFrame(rows)
     R.to_csv(SRC / "q3_joint.csv", index=False)
+    pd.DataFrame(per_run).to_csv(SRC / "q3_joint_runs.csv", index=False)
     show = R[R.endpoint.isin(["internal", "real", "targets"])].copy()
     for c in ("point", "low", "high", "se_boot", "se_seed", "point_seed0", "re_low", "re_high", "re_tau"):
         show[c] = (100 * show[c]).round(2)
@@ -314,15 +321,50 @@ def phase_summarize(args) -> None:
     print(show[["a", "b", "endpoint", "point", "low", "high", "re_low", "re_high", "re_tau", "se_boot", "se_seed", "n_seeds_a", "n_seeds_b"]].to_string(index=False))
 
 
+VERDICT_PAIRS = (("srs_ap_t", "srs_c_val"), ("srs_ap_t", "srs_ap_unaware"), ("srs_ap_t", "nmifs_ap_t"), ("srs_ap_t", "srs_ap"),
+                 ("srs_ap_t", "nmifs"), ("srs_ap", "nmifs"), ("srs_ap_t", "mrmr"))
+
+
+def phase_verdicts(args) -> None:
+    """Per run and dataset (internal and every target): the difference of the CV-seed means, with a 95% interval from the
+    run's own joint-bootstrap variance of the seed-0 difference plus the between-seed variance of each mean."""
+    import pandas as pd
+
+    z = np.load(OUT / "boot.npz", allow_pickle=False)
+    boot = z["boot"]
+    runs, methods, datasets = [str(x) for x in z["runs"]], [str(x) for x in z["methods"]], [str(x) for x in z["datasets"]]
+    mi, di = {m: i for i, m in enumerate(methods)}, {d: i for i, d in enumerate(datasets)}
+    T = pd.read_csv(SRC / "q2_seeds_long.csv")
+    rows = []
+    for a, b in VERDICT_PAIRS:
+        for d in datasets:
+            for r, run in enumerate(runs):
+                ga, gb = T[(T.run == run) & (T.registry == a)], T[(T.run == run) & (T.registry == b)]
+                xa, xb = ga[d].to_numpy(dtype=float), gb[d].to_numpy(dtype=float)
+                diff = float(xa.mean() - xb.mean())
+                var = float(np.var(boot[:, r, mi[a], di[d]] - boot[:, r, mi[b], di[d]], ddof=1))
+                for x in (xa, xb):
+                    if len(x) > 1:
+                        var += float(x.var(ddof=1)) / len(x)
+                lo, hi = diff - 1.96 * math.sqrt(var), diff + 1.96 * math.sqrt(var)
+                rows.append({"a": a, "b": b, "target": d, "run": run, "diff": diff, "low": lo, "high": hi,
+                             "verdict": 1 if lo > 0 else (-1 if hi < 0 else 0), "n_seeds_a": len(xa), "n_seeds_b": len(xb)})
+    R = pd.DataFrame(rows)
+    R.to_csv(SRC / "q3_target_verdicts.csv", index=False)
+    tab = R.groupby(["a", "b", "target"]).verdict.apply(lambda v: f"{(v == 1).sum()}/{(v == 0).sum()}/{(v == -1).sum()}").unstack()
+    pd.set_option("display.width", 250)
+    print(tab.to_string())
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--phase", choices=("dump", "boot", "summarize"), required=True)
+    parser.add_argument("--phase", choices=("dump", "boot", "summarize", "verdicts"), required=True)
     parser.add_argument("--n-boot", type=int, default=1000)
     parser.add_argument("--chunk", type=int, default=50)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--check", action="store_true", help="boot phase: check the weighted AP against sklearn at unit weights")
     args = parser.parse_args(argv)
-    {"dump": phase_dump, "boot": phase_boot, "summarize": phase_summarize}[args.phase](args)
+    {"dump": phase_dump, "boot": phase_boot, "summarize": phase_summarize, "verdicts": phase_verdicts}[args.phase](args)
     return 0
 
 

@@ -105,7 +105,7 @@ def fig_r1() -> None:
             ax.hlines(ypos[b] + off, 100 * r.re_low, 100 * r.re_high, color=color, lw=1.0)
             ax.scatter(100 * r.point, ypos[b] + off, s=13, marker="o", facecolor=color if filled else "white", edgecolor=color, lw=0.9, zorder=3)
             out.append({"comparator": LABEL.get(b, b), "endpoint": e, "point": r.point, "low": r.re_low, "high": r.re_high})
-        tr = R[(R.b == b) & (R.endpoint == "real")]
+        tr = J[(J.b == b) & (J.endpoint == "real")]  # the same per-run verdicts as Table 2
         ax.text(1.03, ypos[b], tr.iloc[0].tally if len(tr) else "--", transform=ax.get_yaxis_transform(), fontsize=FS, va="center", ha="left",
                 color=S.INK2)
     ax.text(1.03, -1.0, "b/n.s./w", transform=ax.get_yaxis_transform(), fontsize=FS, va="center", ha="left", color=S.INK2, fontweight="bold")
@@ -146,7 +146,7 @@ def fig_r1() -> None:
     ax.plot(rk.index, rk.values, color=S.GREY_LIGHT, ls=(0, (1, 1.2)), lw=1.0, marker="o", ms=2, zorder=2)
     ax.text(5, rk.values[0] - 0.007, "random $K$", fontsize=FS, color=S.GREY, ha="left", va="top")
     ax.axhline(allp, color=S.GREY, lw=0.7, ls=(0, (3, 2)), zorder=1)
-    ax.text(20, allp - 0.004, "all programs", fontsize=FS, color=S.GREY, ha="right", va="top")
+    ax.text(5, allp + 0.003, "all programs", fontsize=FS, color=S.GREY, ha="left", va="bottom")
     ax.plot(sk.index, sk.values, color=S.INK, ls=(0, (4, 1.5)), lw=1.0, marker="X", ms=3.2, zorder=2)
     ax.text(20, sk.values[-1] + 0.006, "$K$ statistics", fontsize=FS, color=S.INK2, ha="right", va="bottom")
     out += [pd.DataFrame({"method": "random K", "k": rk.index, "real": rk.values}), pd.DataFrame({"method": "all programs", "k": [0], "real": [allp]}),
@@ -172,17 +172,17 @@ def fig_r1() -> None:
     for i, run in enumerate(runs):
         root, label = run.split("/")
         d = T[(T.run == run) & (T.registry == "srs_ap_t")].sort_values("seed").real.values - nm[run]
-        color = TASK_COLOR[data.TASK[label]]
         offs = np.linspace(-0.26, 0.26, len(d))
-        ax.scatter(100 * d, i + offs, s=6, color=color, lw=0, alpha=0.9, zorder=3)
-        ax.vlines(100 * d.mean(), i - 0.36, i + 0.36, color=color, lw=1.6, zorder=4)
+        ax.scatter(100 * d, i + offs, s=6, color=S.TEAL, lw=0, alpha=0.85, zorder=3)
+        ax.vlines(100 * d.mean(), i - 0.36, i + 0.36, color=S.TEAL_DARK, lw=1.6, zorder=4)
         out.append({"run": run, "n_seeds": len(d), "mean": d.mean(), **{f"seed_{j}": x for j, x in enumerate(d)}})
     ax.axvline(0, color=S.BLUE, lw=0.8, ls=(0, (2, 1.5)))
-    names = [data.run_name(*r.split("/")).replace("Vaso ", "V").replace(" L ", " L") for r in runs]
+    names = [data.run_name(*r.split("/")).replace("Vaso ", "V") for r in runs]
     ax.set_yticks(range(len(runs)), names)
     ax.set_ylim(len(runs) - 0.5, -0.7)
     ax.set_xlabel("SRS+T $-$ NMIFS ($\\times$100)")
-    ax.legend(handles=[Line2D([], [], marker="o", ls="", color=c, ms=3, label=t.replace("Vaso ", "V")) for t, c in TASK_COLOR.items()],
+    ax.legend(handles=[Line2D([], [], marker="o", ls="", color=S.TEAL, ms=3, label="CV seed"),
+                       Line2D([], [], marker="|", ls="", color=S.TEAL_DARK, ms=6, mew=1.6, label="mean")],
               loc="upper center", bbox_to_anchor=(0.3, -0.17), ncol=2, handletextpad=0.05, columnspacing=0.5, labelspacing=0.15)
     ax.grid(axis="x")
     title(ax, "CV seeds")
@@ -192,17 +192,16 @@ def fig_r1() -> None:
     # (d) accuracy and portability, one point per selector (16-run means; CV-based selectors averaged over their seeds)
     ax = fig.add_axes([0.855, bottom, 0.14, h])
     s0 = seed_mean.groupby("registry")[["internal", "real"]].mean()
-    sel = ["srs_ap_t"] + [b for b in R1_HYBRID + R1_ESTABLISHED if b in s0.index and b != "srs_c_val"]  # the 18 selectors
+    sel = ["srs_ap_t"] + [b for b in R1_HYBRID + R1_ESTABLISHED if b in s0.index]  # the 19 selectors of Table 2
     s0 = s0.loc[sel]
     coef = np.polyfit(s0.internal.values, s0.real.values, 1)
     xs = np.linspace(s0.internal.min() - 0.005, s0.internal.max() + 0.005, 10)
     ax.plot(xs, np.polyval(coef, xs), color=S.GREY_LIGHT, lw=0.9, ls=(0, (3, 1.5)), zorder=1)
-    colors = {"srs_ap_t": S.TEAL, "srs_ap": S.TEAL_MID, "srs_c_val": S.TEAL_DARK, "nmifs": S.BLUE, "nmifs_ap_t": HYB, "srs_ap_unaware": "#5DBAA6",
-              "mrmr": S.SKY}
+    colors = {"srs_ap_t": S.TEAL, "nmifs": S.BLUE, "mrmr": S.SKY}  # labelled points only; the rest stay grey
     for m, r in s0.iterrows():
         ax.scatter(r.internal, r.real, s=20 if m == "srs_ap_t" else 13, color=colors.get(m, S.GREY_LIGHT), zorder=3, edgecolor="white", lw=0.4)
-    for m, text, dx, dy, ha in (("srs_ap_t", "SRS+T", -4, 3, "right"), ("nmifs", "NMIFS", -5, -4, "right"), ("mrmr", "mRMR", 4, -3, "left"),
-                                ("l1_logistic", "L1", 4, 0, "left"), ("jmi", "JMI", 4, -2, "left"), ("mmr_ig", "MMR", 4, 4, "left")):
+    for m, text, dx, dy, ha in (("srs_ap_t", "SRS+T", -4, 3, "right"), ("nmifs", "NMIFS", -5, -4, "right"), ("mrmr", "mRMR", -5, -3, "right"),
+                                ("l1_logistic", "L1", 4, 0, "left")):
         if m in s0.index:
             ax.annotate(text, (s0.loc[m, "internal"], s0.loc[m, "real"]), xytext=(dx, dy), textcoords="offset points", ha=ha, va="center", fontsize=FS,
                         color=S.INK2)
@@ -226,16 +225,16 @@ def fig_r2() -> None:
     with 95% intervals (horizontal bars), (b) Spearman fidelity across picks 1-20 (lines with ranges), (c) shortlist recall
     by pick range (dot plot), (d) per-target tallies of SRS+T against each variant (heat map). Data: q2_decomposition.csv,
     proxy_correlation/ext_corr_*.csv, q2_recall.csv, ablation_paired + paired_extra. Higher = better."""
-    fig = plt.figure(figsize=(S.FULL_W, 2.7))
-    top, bottom = 0.87, 0.27
+    fig = plt.figure(figsize=(S.FULL_W, 2.55))
+    top, bottom = 0.863, 0.235
     h = top - bottom
 
     # (a) decomposition: step effects, pooled over pools
     ax = fig.add_axes([0.16, bottom, 0.15, h])
     D = pd.read_csv(SRC / "q3_joint.csv")
-    steps = [("fs_cv", "nmifs", "Wrapper-lik"), ("srs_ap_unaware", "fs_cv", "+ AUPRC decision"), ("srs_ap", "srs_ap_unaware", "+ scenarios, surr."),
+    steps = [("fs_cv", "nmifs", "Wrapper-lik $-$ NMIFS"), ("srs_ap_unaware", "fs_cv", "+ AUPRC decision"), ("srs_ap", "srs_ap_unaware", "+ scenarios, surr."),
              ("srs_ap_t", "srs_ap", "+ target schemas"), ("srs_ap_t", "nmifs", "total: SRS+T"), ("srs_ap_t", "srs_c_val", "AUPRC added last")]
-    ends = [("internal", "internal", S.GREY), ("real", "eICU + HiRID", S.TEAL), ("targets", "all targets", S.BLUE)]
+    ends = [("internal", "internal", S.GREY), ("real", "eICU + HiRID", S.TEAL), ("targets", "all targets", S.SAND)]
     hgt = 0.25
     out = []
     for i, (a, b, text) in enumerate(steps):
@@ -284,7 +283,7 @@ def fig_r2() -> None:
     src("r2b_fidelity_picks", pd.concat(out))
 
     # (c) shortlist recall by pick range
-    ax = fig.add_axes([0.625, bottom, 0.1, h])
+    ax = fig.add_axes([0.612, bottom, 0.095, h])
     R = pd.read_csv(SRC / "q2_recall.csv")
     order = ["1", "2-4", "5-7", "8-11", "12-20"]
     out = []
@@ -295,33 +294,30 @@ def fig_r2() -> None:
         ys = np.arange(len(order)) + {"objective": -0.2, "nmifs": 0.0, "mrmr": 0.2}[proxy]
         ax.scatter(100 * r.recall.values, ys, color=color, marker=marker, s=15, zorder=3, label=name)
         out.append(r.reset_index().assign(proxy=proxy))
-    ax.set_yticks(range(len(order)), order)
-    ax.set_ylabel("picks")
+    ax.set_yticks(range(len(order)), ["pick 1"] + [o.replace("-", "\u2013") for o in order[1:]])
     ax.set_ylim(len(order) - 0.5, -0.5)
     ax.set_xlim(-8, 108)
     ax.set_xticks([0, 50, 100])
     ax.set_xlabel("VAL-best in top 10 (%)")
-    ax.text(14, 0, "same\nranking", fontsize=FS, color=S.INK2, va="center", ha="left")
     ax.grid(axis="x")
     title(ax, "Shortlist recall")
     letter(ax, "c", dx=-0.52)
     src("r2c_shortlist_recall", pd.concat(out))
 
-    # (d) SRS+T against each variant, per target (targets as rows)
-    ax = fig.add_axes([0.815, bottom, 0.14, h])
-    V = per_variant_tallies()
+    # (d) SRS+T against each variant, per target (targets as rows): CV-seed means, joint-bootstrap + seed variance per run
+    ax = fig.add_axes([0.8, bottom, 0.14, h])
+    V = pd.read_csv(SRC / "q3_target_verdicts.csv")
     tg = [("internal", "internal"), ("eicu", "eICU"), ("hirid", "HiRID"), ("drop_labs", "no labs"), ("drop_ventilation", "no vent."),
           ("drop_bp", "no BP"), ("drop_urine", "no urine"), ("vitals_only", "vitals only")]
-    variants = [("srs_c_val", "lik. decision"), ("srs_ap_unaware", "no scenarios"), ("srs_ap_t_nosur", "no surr. obj."),
-                ("nmifs_ap_t", "NMIFS screen"), ("srs_ap", "no targets")]
+    variants = [("srs_c_val", "lik. decision"), ("srs_ap_unaware", "no scenarios"), ("nmifs_ap_t", "NMIFS screen"), ("srs_ap", "no targets")]
     net = np.zeros((len(tg), len(variants)))
     text = [["" for _ in variants] for _ in tg]
     out = []
     for j, (v, vname) in enumerate(variants):
         for i, (t, tname) in enumerate(tg):
-            s = V[(V.b == v) & (V.target == t)]
-            assert len(s) == 16, (v, t, len(s))
-            b, w = int((s.verdict == 1).sum()), int((s.verdict == -1).sum())
+            sel = V[(V.a == "srs_ap_t") & (V.b == v) & (V.target == t)]
+            assert len(sel) == 16, (v, t, len(sel))
+            b, w = int((sel.verdict == 1).sum()), int((sel.verdict == -1).sum())
             net[i, j] = (b - w) / 16
             text[i][j] = f"{b}/{w}"
             out.append({"variant": vname, "target": tname, "better": b, "ns": 16 - b - w, "worse": w})
@@ -329,11 +325,12 @@ def fig_r2() -> None:
     for i in range(net.shape[0]):
         for j in range(net.shape[1]):
             ax.text(j, i, text[i][j], ha="center", va="center", fontsize=FS, color="white" if abs(net[i, j]) > 0.6 else S.INK)
-    cax = fig.add_axes([0.962, bottom + 0.25 * h, 0.007, 0.5 * h])
+    cax = fig.add_axes([0.948, bottom + 0.2 * h, 0.007, 0.6 * h])
     cb = fig.colorbar(im, cax=cax, ticks=[-1, 0, 1])
-    cb.ax.set_yticklabels(["$-$1", "0", "1"])
-    cb.ax.tick_params(labelsize=FS, length=1.5, pad=1)
+    cb.ax.set_yticklabels(["\u22121", "0", "+1"])
+    cb.ax.tick_params(labelsize=FS, length=0, pad=1.5)
     cb.outline.set_visible(False)
+    cb.set_label("(b $-$ w)/16", fontsize=FS, labelpad=1)
     ax.axhline(0.5, color="white", lw=1.8)
     ax.axhline(2.5, color="white", lw=1.8)
     ax.set_yticks(range(len(tg)), [t for _, t in tg])
@@ -342,7 +339,7 @@ def fig_r2() -> None:
     for spine in ax.spines.values():
         spine.set_visible(False)
     title(ax, "SRS+T vs variant")
-    letter(ax, "d", dx=-0.5)
+    letter(ax, "d", dx=-0.4)
     src("r2d_variant_tallies", pd.DataFrame(out))
     S.save_exact(fig, "fig_r2_mechanism")
 
@@ -362,8 +359,8 @@ def fig_r3() -> None:
     loss level with 95% run-bootstrap bands. Data: hospital_schemas_ap, extra_metrics paired_targets, deployment_modes_ap,
     q2_stress_wtl.csv. Higher = better."""
     hr, hp, hm = data.hospital_all()
-    fig = plt.figure(figsize=(S.FULL_W, 2.95))
-    top, bottom = 0.87, 0.33
+    fig = plt.figure(figsize=(S.FULL_W, 2.75))
+    top, bottom = 0.875, 0.355
     h = top - bottom
 
     # (a) UpSet of absent features at eICU hospitals (vasopressor 1 h)
@@ -405,10 +402,9 @@ def fig_r3() -> None:
 
     # (b) diverging verdict bars, three pairs; eICU and HiRID from the real-target bootstraps (same draws as Table 2)
     V = per_target_verdicts()
-    rt = pd.concat([pd.read_csv(f) for f in glob.glob(str(S.ART / "real_targets/union*/*/paired.csv"))], ignore_index=True)
-    rt = rt[rt.target.isin(["eicu", "hirid"])].copy()
-    rt["verdict"] = np.where(rt.low > 0, 1, np.where(rt.high < 0, -1, 0))
-    V = pd.concat([V[~V.target.isin(["eicu", "hirid"])], rt[["run", "target", "a", "b", "point_diff", "low", "high", "verdict"]]], ignore_index=True)
+    Q = pd.read_csv(SRC / "q3_target_verdicts.csv").rename(columns={"diff": "point_diff"})
+    V = pd.concat([V[V.target == "hospitals"], Q[Q.target != "internal"][["run", "target", "a", "b", "point_diff", "low", "high", "verdict"]]],
+                  ignore_index=True)
     out = []
     for ci, (a, b, head) in enumerate((("srs_ap_t", "nmifs", "SRS+T vs\nNMIFS"), ("srs_ap", "nmifs", "SRS vs\nNMIFS"), ("srs_ap_t", "mrmr", "SRS+T vs\nmRMR"))):
         ax = fig.add_axes([0.325 + ci * 0.088, bottom, 0.082, h])
@@ -416,7 +412,7 @@ def fig_r3() -> None:
             s = V[(V.a == a) & (V.b == b) & (V.target == t)]
             assert len(s) == 16, (a, b, t, len(s))
             w, n, bt = int((s.verdict == -1).sum()), int((s.verdict == 0).sum()), int((s.verdict == 1).sum())
-            for left, width, color, ink in ((-(w + n / 2), w, S.WARM, "white"), (-n / 2, n, S.GREY_PALE, S.INK2), (n / 2, bt, S.TEAL, "white")):
+            for left, width, color, ink in ((-(w + n / 2), w, S.WARM, "white"), (-n / 2, n, S.GREY_LIGHT, S.INK), (n / 2, bt, S.TEAL, "white")):
                 if width:
                     ax.barh(i, width, left=left, height=0.74, color=color, edgecolor="white", lw=0.5)
                     if width >= (6 if width >= 10 else 4):
@@ -440,7 +436,7 @@ def fig_r3() -> None:
         else:
             ax.set_yticks([])
         if ci == 1:
-            ax.legend(handles=[Patch(color=S.TEAL, label="first better"), Patch(color=S.GREY_PALE, label="n.s."), Patch(color=S.WARM, label="first worse")],
+            ax.legend(handles=[Patch(color=S.TEAL, label="first better"), Patch(color=S.GREY_LIGHT, label="n.s."), Patch(color=S.WARM, label="first worse")],
                       loc="upper center", bbox_to_anchor=(0.5, -0.36), ncol=3, handlelength=0.9, handletextpad=0.3, columnspacing=0.7)
     src("r3b_target_verdicts", pd.DataFrame(out))
 
@@ -452,6 +448,8 @@ def fig_r3() -> None:
     mt = tg.groupby(["registry", "mode", "name"]).auprc.mean().groupby(["registry", "mode"]).mean().unstack()
     ax = fig.add_axes([0.695, bottom, 0.115, h])
     meths = ("srs_ap_t", "srs_ap", "nmifs", "mrmr", "l1_dropout")
+    lo_x = min(mt.loc[m, md] for m in meths for md, _ in modes)
+    hi_x = max(mt.loc[m, md] for m in meths for md, _ in modes)
     dodge = dict(zip(meths, np.linspace(-0.28, 0.28, len(meths))))
     for i, (md, text) in enumerate(modes):
         vals = [mt.loc[m, md] for m in meths]
@@ -462,7 +460,8 @@ def fig_r3() -> None:
                        label=LABEL[m] if i == 0 else None)
     ax.set_yticks(range(len(modes)), [t for _, t in modes])
     ax.set_ylim(len(modes) - 0.5, -0.6)
-    ax.set_xlabel("mean target AUPRC")
+    ax.set_xlim(lo_x - 0.004, hi_x + 0.004)
+    ax.set_xlabel("mean AUPRC, all targets")
     ax.legend(loc="upper center", bbox_to_anchor=(0.12, -0.24), ncol=2, handletextpad=0.1, columnspacing=0.5, labelspacing=0.25)
     ax.grid(axis="x")
     title(ax, "Deployment")
@@ -484,7 +483,8 @@ def fig_r3() -> None:
     ax.set_xlabel("loss probability $l$")
     ax.set_ylabel("SRS+T $-$ comparator ($\\times 100$)")
     ax.legend(handles=[Line2D([], [], color=S.BLUE, marker="s", ms=3, label="vs NMIFS"), Line2D([], [], color=S.SKY, marker="^", ms=3, label="vs mRMR"),
-                       Line2D([], [], color=S.INK2, ls="-", label="features"), Line2D([], [], color=S.INK2, ls=(0, (3, 1.5)), label="groups")],
+                       Line2D([], [], color=S.INK2, ls="-", marker="o", ms=3, label="features"),
+                       Line2D([], [], color=S.INK2, ls=(0, (3, 1.5)), marker="o", ms=3, mfc="white", label="groups")],
               loc="upper center", bbox_to_anchor=(0.32, -0.24), ncol=1, handlelength=1.6, handletextpad=0.3, labelspacing=0.25)
     ax.grid(axis="y")
     title(ax, "Random loss")
@@ -528,8 +528,9 @@ def fig_r5() -> None:
     from matplotlib.colors import ListedColormap
     from matplotlib.transforms import blended_transform_factory
     rng = np.random.default_rng(2)
-    fig = plt.figure(figsize=(S.FULL_W, 5.4))
-    gs = GridSpec(2, 3, wspace=0.62, hspace=0.72, left=0.095, right=0.985, top=0.95, bottom=0.12)
+    fig = plt.figure(figsize=(S.FULL_W, 5.9))
+    # the lower row is taller: panel d lists 17 settings, and eta_0's subscript needs a full line each
+    gs = GridSpec(2, 3, wspace=0.62, hspace=0.62, left=0.095, right=0.985, top=0.955, bottom=0.11, height_ratios=[1, 1.3])
 
     # (a) re-splits
     ax = fig.add_subplot(gs[0, 0])
@@ -626,7 +627,7 @@ def fig_r5() -> None:
     ax = fig.add_subplot(gs[1, 0])
     sens = data.sensitivity()
     default = sens[sens.parameter == "default"].set_index("label")
-    names = {"q": "$\\omega$", "max_surrogates": "$M$", "n_folds": "$V$", "C": "$\\eta$", "n_dropout": "$D$", "seed": "seed"}
+    names = {"q": "$\\omega$", "max_surrogates": "$M$", "n_folds": "$V$", "C": "$\\eta_0$", "n_dropout": "$D$", "seed": "seed"}
     rows = []
     keep = sens[(sens.parameter != "default") & ~((sens.parameter == "q") & (sens.value.astype(str) == "0.25"))]
     for (param, value), g in keep.groupby(["parameter", "value"], sort=False):
@@ -646,14 +647,14 @@ def fig_r5() -> None:
     for k, row in tor.iterrows():
         ax.hlines(k, 100 * row["min"], 100 * row["max"], color=S.TEAL_LIGHT, lw=3.2)
         ax.scatter(100 * row["mean"], k, s=9, color=S.TEAL_DARK, zorder=3)
-        ax.scatter(100 * row["val_mean"], k, s=12, marker="|", color=S.WARM, zorder=4, lw=1.1)
+        ax.scatter(100 * row["val_mean"], k, s=12, marker="|", color=S.INK, zorder=4, lw=1.1)
     ax.axvline(0, color=S.INK2, lw=0.6)
     ax.set_yticks(range(len(tor)), tor.variant)
     ax.set_ylim(len(tor) - 0.4, -0.6)
     ax.set_xlabel("$\\Delta$ AUPRC vs default ($\\times 100$)")
     ax.legend(handles=[Line2D([], [], color=S.TEAL_LIGHT, lw=3, label="targets: range"), Line2D([], [], marker="o", ls="", color=S.TEAL_DARK, ms=3, label="targets: mean"),
-                       Line2D([], [], marker="|", ls="", color=S.WARM, ms=5, label="VAL: mean")],
-              loc="upper center", bbox_to_anchor=(0.45, -0.16), ncol=3, handletextpad=0.3, columnspacing=0.5, handlelength=1.2)
+                       Line2D([], [], marker="|", ls="", color=S.INK, ms=5, label="VAL: mean")],
+              loc="upper center", bbox_to_anchor=(0.45, -0.155), ncol=3, handletextpad=0.5, columnspacing=0.8, handlelength=1.2)
     title(ax, "Settings, one at a time")
     letter(ax, "d", dx=-0.3)
     src("r5d_sensitivity", tor)
@@ -687,7 +688,7 @@ def fig_r5() -> None:
     ax.set_xticks(range(1, 11))
     ax.set_xlabel("screen rank of the added candidate")
     ax.set_ylabel("greedy steps (16 runs)")
-    ax.text(0.97, 0.95, f"{len(tr_)} steps\n{100 * (1 - same):.0f}% differ from\nthe likelihood choice", transform=ax.transAxes, ha="right", va="top",
+    ax.text(0.97, 0.95, f"{int(round(len(tr_) * (1 - same)))} of {len(tr_)} steps\ndiffer from the\nlikelihood choice", transform=ax.transAxes, ha="right", va="top",
             fontsize=FS, color=S.INK2)
     ax.grid(axis="y")
     title(ax, "AUPRC decision")
@@ -730,8 +731,8 @@ def fig_r4() -> None:
     fq = reps[reps.method == "srs_c_v"].copy()
     fq["seconds"] = fq.phase_chains + fq.phase_select_q0
     fq = fq.groupby("n_candidates").seconds.agg(["median", "min", "max", "size"]).reset_index()
-    fig = plt.figure(figsize=(S.FULL_W, 2.9))
-    top, bottom = 0.87, 0.36
+    fig = plt.figure(figsize=(S.FULL_W, 2.45))
+    top, bottom = 0.861, 0.327
     h = top - bottom
 
     def sec_ticks(ax, values):
@@ -741,7 +742,7 @@ def fig_r4() -> None:
     # (a) runtime: median of the repeats, range as a band
     ax = fig.add_axes([0.092, bottom, 0.165, h])
     lines = [("srs_ap_v", "SRS+T", S.TEAL, "-", "o", 1.6), ("srs_c_v", "SRS+T-lik", S.TEAL_DARK, (0, (2, 1.2)), "o", 1.0),
-             ("fast_q0", "screening, $\\omega$ = 0", "#7CC7B6", "-", "^", 1.0), ("srs_c_exact", "exact, $\\omega$ = 0", S.SAND, (0, (4, 1.5)), "s", 1.2),
+             ("fast_q0", "screening, $\\omega$ = 0", S.TEAL_MID, "-", "^", 1.0), ("srs_c_exact", "exact, $\\omega$ = 0", S.SAND, (0, (4, 1.5)), "s", 1.2),
              ("nmifs", "NMIFS, mRMR", S.BLUE, "-", "s", 1.0)]
     rows = []
     for m, text, color, ls, marker, lw in lines:
@@ -769,7 +770,7 @@ def fig_r4() -> None:
     v = med.set_index(["method", "n_candidates"])
     big = "srs_ap_v" if ("srs_ap_v", 100000) in v.index else "srs_c_v"
     bars = [("srs_ap_v", 500, "500"), ("srs_ap_v", 2274, "2.3k"), ("srs_ap_v", 10000, "10k"), (big, 100000, "100k")]
-    phases = [("phase_chains", "surrogate chains", S.SAND), ("phase_select_q0", "selection, $\\omega$ = 0", S.TEAL_LIGHT),
+    phases = [("phase_chains", "surrogate chains", S.GREY_LIGHT), ("phase_select_q0", "selection, $\\omega$ = 0", S.TEAL_LIGHT),
               ("phase_select_q25", "selection, $\\omega$ = 0.25", S.TEAL)]
     base = np.zeros(len(bars))
     out = []
@@ -812,7 +813,7 @@ def fig_r4() -> None:
     ax.step(fx + [400], fy + [fy[-1]], where="post", color=S.TEAL_LIGHT, lw=1.0, zorder=1)
     for _, row in frame.iterrows():
         ax.scatter(row.seconds, row.auprc, s=18, color=row.color, zorder=3, edgecolor="white", lw=0.4)
-    offsets = {"SRS+T": (0, 5, "center", "bottom"), "SRS+T-lik": (-5, -2, "right", "top"), "Wrapper-lik": (0, -5, "center", "top"),
+    offsets = {"SRS+T": (0, 5, "center", "bottom"), "SRS+T-lik": (-5, 0, "right", "center"), "Wrapper-lik": (0, -5, "center", "top"),
                "DPP": (0, 5, "center", "bottom"), "MMRFS": (0, -5, "center", "top"), "L1": (5, 0, "left", "center"),
                "CMIM": (5, 0, "left", "center"), "JMI": (5, 0, "left", "center"), "NMIFS": (5, 3, "left", "bottom"), "mRMR": (5, -2, "left", "top")}
     for _, row in frame.iterrows():
@@ -838,7 +839,7 @@ def fig_r4() -> None:
     out, yl = [], []
     y = 0
     engines = [("duckdb_memory", "DuckDB, memory", S.TEAL, "o", True), ("duckdb_disk", "DuckDB, disk", S.TEAL, "o", False),
-               ("python", "Python engine", S.SAND, "D", True)]
+               ("python", "Python engine", S.GREY, "D", True)]
     for r_ in (1, 10, 30):
         for col, ptext in (("seconds_tokens", "tokens"), ("seconds_registry", "registry")):
             for off, (eng, etext, color, marker, filled) in zip((-0.24, 0.0, 0.24), engines):
@@ -846,8 +847,7 @@ def fig_r4() -> None:
                 if d.empty:
                     if eng == "duckdb_memory" and r_ == 30:
                         val = mem30[col]
-                        ax.scatter(val, y + off, s=16, marker="o", facecolor="white", edgecolor=S.TEAL_DARK, lw=0.9, zorder=3)
-                        ax.scatter(val, y + off, s=4, marker="o", color=S.TEAL_DARK, zorder=4)
+                        ax.scatter(val, y + off, s=15, marker="o", facecolor=S.TEAL_DARK, edgecolor="white", lw=0.5, zorder=3)
                         out.append({"replicate": r_, "phase": ptext, "engine": etext + " (one run)", "median_s": val, "q1": val, "q3": val, "n": 1})
                     continue
                 med_, q1, q3 = d.median(), d.quantile(0.25), d.quantile(0.75)
@@ -864,7 +864,7 @@ def fig_r4() -> None:
     ax.minorticks_off()
     ax.set_xlabel("seconds")
     ax.legend(handles=[Line2D([], [], marker=m, ls="", mfc=c if f else "white", mec=c, label=t) for _, t, c, m, f in engines] +
-              [Line2D([], [], marker="o", ls="", mfc="white", mec=S.TEAL_DARK, label="memory, one run")],
+              [Line2D([], [], marker="o", ls="", mfc=S.TEAL_DARK, mec="white", label="memory, one run")],
               loc="upper center", bbox_to_anchor=(0.05, -0.22), ncol=2, handletextpad=0.1, columnspacing=0.4, labelspacing=0.2)
     ax.grid(axis="x", which="major")
     title(ax, "Registry as SQL")
@@ -889,8 +889,8 @@ def fig_r6() -> None:
     hp = hyb_pair[(hyb_pair.a == "srs_ap_t") & (hyb_pair.b == "nmifs_ap_t")].copy()
     rp = ref_pair[(ref_pair.a == "srs_ap_t") & (ref_pair.metric.isin(["internal", "mean_target"]))].copy()
     paired = pd.concat([paired, _verdicts(hp), _verdicts(rp)], ignore_index=True)
-    fig = plt.figure(figsize=(S.FULL_W, 2.75))
-    top, bottom = 0.87, 0.3
+    fig = plt.figure(figsize=(S.FULL_W, 2.5))
+    top, bottom = 0.86, 0.33
     h = top - bottom
 
     # (a) heat map with significance glyphs
@@ -914,18 +914,19 @@ def fig_r6() -> None:
         ax.axvline(x, color="white", lw=2.0)
     ax.set_xticks(range(6), ["int.", "tgt."] * 3, rotation=90)
     for ki, k in enumerate((5, 10, 20)):
-        ax.text(ki * 2 + 0.5, -0.75, f"$K$={k}" + ("*" if k == 10 else ""), ha="center", va="bottom", fontsize=FS, color=S.INK2)
+        ax.text(ki * 2 + 0.5, -0.6, f"$K$={k}" + ("*" if k == 10 else ""), ha="center", va="bottom", fontsize=FS, color=S.INK2)
     ax.set_yticks(range(len(base)), [LABEL[b] for b in base])
     ax.tick_params(length=0)
     for spine in ax.spines.values():
         spine.set_visible(False)
     cax = ax.inset_axes([0.0, -0.33, 1.0, 0.04])
     cb = fig.colorbar(im, cax=cax, orientation="horizontal", ticks=[-0.1, 0, 0.1])
-    cb.ax.set_xticklabels(["$-$.1", "0", "+.1"])
+    cb.ax.set_xticklabels(["\u221210", "0", "+10"])
     cb.ax.tick_params(labelsize=FS, length=1.5, pad=1)
     cb.outline.set_visible(False)
-    ax.set_title("SRS+T $-$ comparator", loc="left", fontsize=FS_TITLE, fontweight="bold", y=1.1, pad=0)
-    letter(ax, "a", dx=-0.8, dy=1.1)
+    cb.set_label("SRS+T $-$ comparator (\u00d7100)", fontsize=FS, labelpad=1)
+    title(ax, "By budget", y=1.15)
+    letter(ax, "a", dx=-0.8, dy=1.15)
     src("r6a_drive_heatmap", pd.DataFrame(mat, index=[LABEL[b] for b in base],
                                           columns=[f"K{k}_{m}" for k in (5, 10, 20) for m in ("internal", "target")]).reset_index())
 
@@ -950,8 +951,8 @@ def fig_r6() -> None:
     ax.legend(ncol=1, loc="upper center", bbox_to_anchor=(0.45, -0.2), handlelength=0.8, labelspacing=0.2)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
-    title(ax, "How programs run")
-    letter(ax, "b", dx=-0.72)
+    title(ax, "How programs run", y=1.15)
+    letter(ax, "b", dx=-0.72, dy=1.15)
     src("r6b_executability", ex)
 
     # (c) budget
@@ -975,8 +976,8 @@ def fig_r6() -> None:
     ax.set_ylabel("mean target AUPRC")
     ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.2), ncol=2, handlelength=1.5, columnspacing=0.4, labelspacing=0.15, handletextpad=0.3)
     ax.grid(axis="y")
-    title(ax, "Budget")
-    letter(ax, "c", dx=-0.5)
+    title(ax, "Budget", y=1.15)
+    letter(ax, "c", dx=-0.5, dy=1.15)
     src("r6c_variants", pd.DataFrame(out))
 
     # (d) pre-registered tests at K = 10
@@ -1003,32 +1004,33 @@ def fig_r6() -> None:
              ("H2 L1, int.", ci(pi[(pi.a == "srs_c_val") & (pi.b == "l1_logistic")]), post("srs_ap_t", "l1_logistic", "internal")),
              ("H2 L1, tgt.", ci(pt[(pt.a == "srs_c_val") & (pt.b == "l1_logistic") & (pt.target == "mean_over_targets")]), post("srs_ap_t", "l1_logistic", "mean_target")),
              ("H3 SRS, tgt.", ci(e[(e.a == "srs_c_unknown_val") & (e.b == "mrmr") & (e.target == "mean_over_targets")]), post("srs_ap", "mrmr", "mean_target"))]
-    xmax = 0.07
+    xmax = 7.0  # points (AUPRC x 100), as in every other figure
     out = []
     for i, (name, a_pre, a_post) in enumerate(tests):
         for off, (vals, filled) in zip((-0.2, 0.2), ((a_pre, False), (a_post, True))):
             color = S.TEAL if filled else S.GREY
-            lo, hi, pt_ = vals[1], min(vals[2], xmax), vals[0]
+            lo, hi, pt_ = 100 * vals[1], min(100 * vals[2], xmax), 100 * vals[0]
             if pt_ > xmax:
-                ax.scatter(xmax - 0.003, i + off, marker=">", s=14, color=color, zorder=3)
-                ax.text(xmax - 0.007, i + off, f"{pt_:+.2f}", ha="right", va="center", fontsize=FS, color=color)
+                ax.scatter(xmax - 0.3, i + off, marker=">", s=14, color=color, zorder=3)
+                ax.text(xmax - 0.7, i + off, f"{pt_:+.0f}", ha="right", va="center", fontsize=FS, color=color,
+                        bbox=dict(facecolor="white", edgecolor="none", pad=0.4), zorder=4)
                 continue
             ax.hlines(i + off, lo, hi, color=color, lw=1.0)
             ax.scatter(pt_, i + off, s=14, marker="o", facecolor=color if filled else "white", edgecolor=color, lw=0.9, zorder=3)
         out.append({"test": name, "pre_diff": a_pre[0], "pre_low": a_pre[1], "pre_high": a_pre[2], "post_diff": a_post[0], "post_low": a_post[1],
                     "post_high": a_post[2]})
     ax.axvline(0, color=S.INK2, lw=0.6, ls=(0, (2, 2)))
-    ax.set_xlim(-0.02, xmax)
-    ax.set_xticks([0, 0.05], ["0", ".05"])
+    ax.set_xlim(-2.0, xmax)
+    ax.set_xticks([0, 5], ["0", "5"])
     ax.set_yticks(range(len(tests)), [t[0] for t in tests])
     ax.set_ylim(len(tests) - 0.4, -0.6)
-    ax.set_xlabel("AUPRC difference")
+    ax.set_xlabel("difference (×100)")
     ax.legend(handles=[Line2D([], [], marker="o", ls="-", lw=0.9, mfc="white", mec=S.GREY, color=S.GREY, label="pre-specified"),
                        Line2D([], [], marker="o", ls="-", lw=0.9, color=S.TEAL, label="post hoc")],
               loc="upper center", bbox_to_anchor=(0.2, -0.2), ncol=1, handletextpad=0.3, labelspacing=0.2, handlelength=1.4)
     ax.grid(axis="x")
-    title(ax, "Pre-registered")
-    letter(ax, "d", dx=-0.85)
+    title(ax, "Pre-registered", y=1.15)
+    letter(ax, "d", dx=-0.85, dy=1.15)
     src("r6d_hypotheses", pd.DataFrame(out))
     S.save_exact(fig, "fig_r6_drives")
 

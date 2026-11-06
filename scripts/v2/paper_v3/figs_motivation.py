@@ -51,7 +51,7 @@ def fig_c1() -> None:
     ax.set_ylim(len(TGT) - 0.5, -0.6)
     ax.set_xlim(0, 1.25)
     ax.set_xticks([0, 0.5, 1], ["0", "50", "100"])
-    ax.set_xlabel("programs that cannot run (%)")
+    ax.set_xlabel("cannot run (%)")
     ax.tick_params(axis="y", length=0)
     title(ax, "Broken programs")
     letter(ax, "a", dx=-0.62)
@@ -91,16 +91,22 @@ def fig_c2() -> None:
     fig = plt.figure(figsize=(S.COL_W, 2.15))
     bottom, h = 0.38, 0.51
     marker = {"ERMiner": "o", "PrefixSpan": "s", "Motif": "^", "Shapelet": "D", "FMG": "v"}
-    for k, (col, name) in enumerate((("mrmr", "mRMR score"), ("srs_estimate", "estimated value (bits)"))):
+    # generators in neutrals: greys for token programs, sands for series programs (teal, blue and sky blue denote selectors)
+    color = {"ERMiner": "#4D4D4D", "PrefixSpan": "#9A9A9A", "Motif": S.SAND, "Shapelet": "#7D6440", "FMG": S.INK}
+    for k, (col, name) in enumerate((("mrmr", "mRMR score"), ("srs_estimate", "likelihood estimate (bits)"))):
         ax = fig.add_axes([0.16 + k * 0.44, bottom, 0.37, h])
         for g in GEN_ORDER:
             s = d[d.generator == g]
-            ax.scatter(s[col], 100 * s.val_auprc_gain, s=6, marker=marker[g], color=GEN_COLOR[g], alpha=0.75, lw=0, label=g)
+            ax.scatter(s[col], 100 * s.val_auprc_gain, s=6, marker=marker[g], color=color[g], alpha=0.75, lw=0, label=g)
         top = d.nlargest(10, col)
         ax.scatter(top[col], 100 * top.val_auprc_gain, s=26, facecolor="none", edgecolor=S.INK, lw=0.6, zorder=4)
+        if k == 0:  # seven of mRMR's ten best-scored candidates overlap: name them
+            low = top[100 * top.val_auprc_gain < 3]
+            ax.annotate(f"{len(low)} of its top 10:\ngain ranks\n232\u2013265", (low[col].mean(), 100 * low.val_auprc_gain.mean()),
+                        xytext=(-0.505, 3.15), textcoords="data", fontsize=FS, color=S.INK2, ha="left", va="center",
+                        arrowprops=dict(arrowstyle="-", color=S.INK2, lw=0.5))
         rho = spearmanr(d[col], d.val_auprc_gain).correlation
-        ax.text(0.04, 0.96, f"$\\rho$ = {rho:.2f}", transform=ax.transAxes, fontsize=FS, va="top", fontweight="bold",
-                color=S.TEAL_DARK if col == "srs_estimate" else S.WARM)
+        ax.text(0.04, 0.96, f"$\\rho$ = {rho:.2f}", transform=ax.transAxes, fontsize=FS, va="top", fontweight="bold", color=S.INK)
         ax.set_xlabel(name)
         if k == 1:
             ax.set_xticks([0, 0.02, 0.04])
@@ -109,7 +115,7 @@ def fig_c2() -> None:
         ax.axhline(0, color=S.GREY_LIGHT, lw=0.5)
         title(ax, "Proxy score" if k == 0 else "Estimated value")
         letter(ax, "ab"[k], dx=-0.3 if k == 0 else -0.1)
-    fig.legend(handles=[plt.Line2D([], [], marker=marker[g], ls="", color=GEN_COLOR[g], ms=3.5, label=g) for g in GEN_ORDER] +
+    fig.legend(handles=[plt.Line2D([], [], marker=marker[g], ls="", color=color[g], ms=3.5, label=g) for g in GEN_ORDER] +
                [plt.Line2D([], [], marker="o", ls="", mfc="none", mec=S.INK, ms=5, label="top 10 by score")],
                loc="lower center", ncol=3, handletextpad=0.05, columnspacing=0.8, bbox_to_anchor=(0.55, 0.0), labelspacing=0.2)
     src("c2_proxy_scatter", d)
@@ -131,10 +137,11 @@ def fig_c3() -> None:
     fq = fq.groupby("n_candidates").seconds.agg(["median", "min", "max", "size"]).reset_index()
     fig = plt.figure(figsize=(S.COL_W, 2.0))
     bottom, h = 0.3, 0.58
-    ax = fig.add_axes([0.16, bottom, 0.4, h])
-    for d, color, marker, text in ((ex, S.WARM, "s", "exact"), (fq, S.TEAL, "o", "screening")):
+    ax = fig.add_axes([0.16, bottom, 0.36, h])
+    # the encoding of Figure r4a: exact greedy sand, dashed, hollow squares; screening mid teal, triangles
+    for d, color, marker, ls, mfc, text in ((ex, S.SAND, "s", (0, (4, 1.5)), "white", "exact"), (fq, S.TEAL_MID, "^", "-", S.TEAL_MID, "screening")):
         ax.fill_between(d.n_candidates, d["min"], d["max"], color=color, alpha=0.18, lw=0)
-        ax.plot(d.n_candidates, d["median"], color=color, marker=marker, ms=3, lw=1.3, label=text)
+        ax.plot(d.n_candidates, d["median"], color=color, marker=marker, ms=3, lw=1.3, ls=ls, mfc=mfc, mec=color, label=text)
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xticks([1e3, 1e4, 1e5], ["1k", "10k", "100k"])
@@ -142,20 +149,20 @@ def fig_c3() -> None:
     ax.minorticks_off()
     ax.set_xlabel("candidates $|\\mathcal{C}|$")
     ax.set_ylabel("one selection (s)")
-    ax.legend(loc="upper left", handlelength=1.4, borderpad=0.1, labelspacing=0.2)
+    ax.legend(loc="lower right", handlelength=1.8, borderpad=0.1, labelspacing=0.2)
     ax.grid(which="major")
     title(ax, "Time")
     letter(ax, "a", dx=-0.3)
-    ax = fig.add_axes([0.72, bottom, 0.27, h])
+    ax = fig.add_axes([0.665, bottom, 0.325, h])
     e_i = ex.set_index("n_candidates")["median"]
     f_i = fq.set_index("n_candidates")["median"]
     sizes = [n for n in e_i.index if n in f_i.index]
     speed = [e_i[n] / f_i[n] for n in sizes]
-    ax.bar(range(len(sizes)), speed, width=0.62, color=S.TEAL)
+    ax.bar(range(len(sizes)), speed, width=0.62, color=S.TEAL_MID)
     for k, v in enumerate(speed):
         ax.text(k, v + 0.2, f"{v:.1f}", ha="center", va="bottom", fontsize=FS, color=S.INK2)
     labels = {500: "500", 1000: "1k", 2274: "2.3k", 5000: "5k", 10000: "10k", 20000: "20k"}
-    ax.set_xticks(range(len(sizes)), [labels.get(n, f"{n:,}") for n in sizes], rotation=90)
+    ax.set_xticks(range(len(sizes)), [labels.get(n, f"{n:,}") for n in sizes], rotation=45, ha="right", rotation_mode="anchor")
     ax.set_xlabel("candidates $|\\mathcal{C}|$")
     ax.set_ylabel("exact / screening")
     ax.set_ylim(0, max(speed) * 1.3)

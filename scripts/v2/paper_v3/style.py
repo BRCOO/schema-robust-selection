@@ -70,6 +70,9 @@ def setup() -> None:
         "axes.labelcolor": INK, "xtick.color": "#333333", "ytick.color": "#333333", "text.color": INK,
         "svg.fonttype": "none", "pdf.fonttype": 42, "ps.fonttype": 42, "savefig.dpi": 300,
         "axes.titleweight": "bold", "axes.titlepad": 3, "grid.color": "#E3E3E3", "grid.linewidth": 0.5,
+        # math text in Arial too (symbols such as omega, eta, rho and x100 otherwise come from DejaVu), grids behind the data
+        "mathtext.fontset": "custom", "mathtext.rm": "Arial", "mathtext.it": "Arial:italic", "mathtext.bf": "Arial:bold",
+        "mathtext.sf": "Arial", "axes.axisbelow": True,
     })
 
 

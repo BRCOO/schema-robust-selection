@@ -1029,7 +1029,7 @@ def fig_r6() -> None:
                        Line2D([], [], marker="o", ls="-", lw=0.9, color=S.TEAL, label="post hoc")],
               loc="upper center", bbox_to_anchor=(0.2, -0.2), ncol=1, handletextpad=0.3, labelspacing=0.2, handlelength=1.4)
     ax.grid(axis="x")
-    title(ax, "Pre-registered", y=1.15)
+    title(ax, "Protocol tests", y=1.15)
     letter(ax, "d", dx=-0.85, dy=1.15)
     src("r6d_hypotheses", pd.DataFrame(out))
     S.save_exact(fig, "fig_r6_drives")

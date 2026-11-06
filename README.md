@@ -23,6 +23,7 @@ from the raw tables.
 | `tests/v2/` | unit tests (`pytest -q tests/v2`) |
 | `launchers/` | the exact launch scripts used for the paper (workstation paths) |
 | `docs/harmonization_spec.md` | feature mappings of the three ICU databases and the evidence behind them |
+| `docs/drive_protocol_2026-11-02.md` | the drive domain's protocol (in Chinese): data, comparators, hypotheses H1-H3 and decision rules, written on 2026-11-02 before any selection on drives; its Section 6 (results) was appended after the runs without changing Sections 1-5 |
 
 ## Environment
 
@@ -54,7 +55,7 @@ differ by up to 5e-4 and a probe's penalty can flip between near-tied values (16
 6. **Statistics**: `scripts/v2/run_joint_bootstrap.py --phase dump`, `--phase boot`, `--phase summarize`.
 7. **SQL execution and timing** (idle machine): `scripts/v2/run_sql_execution.py`,
    `scripts/v2/run_selection_scalability.py`.
-8. **Drive domain** (pre-registered): `scripts/v2/run_drive_track.py`.
+8. **Drive domain** (pre-specified; protocol in `docs/drive_protocol_2026-11-02.md`): `scripts/v2/run_drive_track.py`.
 9. **Figures and tables**: `scripts/v2/paper_v3/round2.py`, then `figs_motivation.py`, `figs_v5.py` and `tables.py` in
    `scripts/v2/paper_v3/`.
 

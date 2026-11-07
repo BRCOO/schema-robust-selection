@@ -1081,9 +1081,9 @@ def fig_r6g() -> None:
     ax.set_ylim(len(tests) - 0.4, -0.7)
     ax.set_xlabel("difference ($\\times$100)")
     ax.tick_params(axis="y", length=0)
-    ax.legend(handles=[Line2D([], [], marker="o", color=S.TEAL, lw=1.0, label="holds"),
-                       Line2D([], [], marker="o", color=S.GREY, mfc="white", lw=1.0, label="fails")],
-              loc="upper center", bbox_to_anchor=(0.3, -0.2), ncol=2, handlelength=1.2, columnspacing=0.6, handletextpad=0.3)
+    ax.legend(handles=[Line2D([], [], marker="o", color=S.TEAL, lw=1.0, label="interval > 0"),
+                       Line2D([], [], marker="o", color=S.GREY, mfc="white", lw=1.0, label="includes 0")],
+              loc="upper center", bbox_to_anchor=(0.3, -0.27), ncol=2, handlelength=1.2, columnspacing=0.6, handletextpad=0.3)
     ax.grid(axis="x")
     title(ax, "Protocol tests", y=1.06)
     letter(ax, "a", dx=-1.2, dy=1.06)
@@ -1094,7 +1094,7 @@ def fig_r6g() -> None:
     run_order = [f"union_esrc_k{k}/e_eicu_{t}" for t in ("gap1h", "aki_gap6h") for k in (5, 10, 20)]
     run_text = [f"{'V' if 'gap1h' in r else 'AKI'} {r.split('_k')[1].split('/')[0]}" for r in run_order]
     comps = ["nmifs", "cmim", "mrmr", "dpp_ig", "l1_dropout", "mmrfs", "mms_xin_ig", "mrmr_filter_known", "l1_logistic", "mmr_ig",
-             "mrmr_stratified", "jmi", "srs_ap", "srs_c_val"]
+             "mrmr_stratified", "jmi"]
     sites = per[(per.a == "srs_ap_t") & (per.endpoint == "sites")]
     mat, glyph = np.zeros((len(comps), len(run_order))), np.zeros((len(comps), len(run_order)))
     for i, b in enumerate(comps):
@@ -1109,7 +1109,6 @@ def fig_r6g() -> None:
             if glyph[i, j]:
                 ax.text(j, i, "\u25b2" if glyph[i, j] == 1 else "\u25bc", ha="center", va="center", fontsize=FS - 1.5,
                         color="white" if abs(mat[i, j]) > 3.5 else S.INK)
-    ax.axhline(len(comps) - 2.5, color="white", lw=2.0)
     ax.axvline(2.5, color="white", lw=2.0)
     ax.set_yticks(range(len(comps)), [LABEL.get(b, b) for b in comps])
     ax.set_xticks(range(len(run_order)), run_text, rotation=90)
@@ -1144,7 +1143,7 @@ def fig_r6g() -> None:
     ax.set_xlim(0, 30)
     ax.set_xticks([0, 10, 20, 30])
     ax.set_xlabel("program\u2013target pairs")
-    ax.legend(ncol=1, loc="upper center", bbox_to_anchor=(0.35, -0.2), handlelength=0.8, labelspacing=0.2)
+    ax.legend(ncol=1, loc="upper center", bbox_to_anchor=(0.35, -0.27), handlelength=0.8, labelspacing=0.2)
     ax.spines["left"].set_visible(False)
     ax.tick_params(axis="y", length=0)
     title(ax, "Drive programs", y=1.06)
@@ -1170,7 +1169,7 @@ def fig_r6g() -> None:
     ax.minorticks_off()
     ax.set_xlabel("budget $K$")
     ax.set_ylabel("mean target AUPRC")
-    ax.set_ylim(0.55, None)
+    ax.set_ylim(0.5, None)
     ax.legend(loc="lower right", handlelength=1.0, labelspacing=0.15, handletextpad=0.25, borderpad=0.1, borderaxespad=0.05)
     ax.grid(axis="y")
     title(ax, "Drive budget", y=1.06)

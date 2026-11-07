@@ -436,9 +436,7 @@ def dataset_table() -> None:
             ("", "", "eICU", "target", "8,974 / 8,824", 8974 / 17798, "17", "vent."),
             ("", "", "HiRID", "target", "1,906 / 1,888", 1906 / 3794, "18", "--"),
             ("Drive failure", "2 d", "Seagate", "source", "1,898 / 1,898", 0.5, "20", "--"),
-            ("", "", "HGST", "target", "1,074 / 1,074", 0.5, "14", "6 attr."),
-            ("", "", "Toshiba", "target", "1,092 / 1,092", 0.5, "13", "7 attr."),
-            ("", "", "WDC", "target", "319 / 319", 0.5, "14", "6 attr.")]
+            ("", "", "3 targets", "target", "319--1,092 ea.", 0.5, "13--14", "6--7 attr.")]
     lines = [r"\begin{tabular}{@{}llllrrcl@{}}", r"\toprule",
              r"Task & Gap & Database & Role & Pos.\ / ctrl. & Prev. & $|F|$ & Absent \\", r"\midrule"]
     for i, row in enumerate(rows):

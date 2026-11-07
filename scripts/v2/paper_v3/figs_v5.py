@@ -82,8 +82,8 @@ def fig_r1() -> None:
     R = pd.read_csv(SRC / "q2_pooled_seeds.csv")
     T = pd.read_csv(SRC / "q2_seeds_long.csv")
     seed_mean = T.groupby(["run", "registry"])[["internal", "real", "targets"]].mean().reset_index()
-    fig = plt.figure(figsize=(S.FULL_W, 3.0))
-    top, bottom = 0.885, 0.235
+    fig = plt.figure(figsize=(S.FULL_W, 2.8))
+    top, bottom = 0.877, 0.252
     h = top - bottom
 
     # (a) forest: hybrids and informed comparators, then the established selectors, each sorted by the real-target difference
@@ -225,8 +225,8 @@ def fig_r2() -> None:
     with 95% intervals (horizontal bars), (b) Spearman fidelity across picks 1-20 (lines with ranges), (c) shortlist recall
     by pick range (dot plot), (d) per-target tallies of SRS+T against each variant (heat map). Data: q2_decomposition.csv,
     proxy_correlation/ext_corr_*.csv, q2_recall.csv, ablation_paired + paired_extra. Higher = better."""
-    fig = plt.figure(figsize=(S.FULL_W, 2.55))
-    top, bottom = 0.863, 0.235
+    fig = plt.figure(figsize=(S.FULL_W, 2.5))
+    top, bottom = 0.86, 0.24
     h = top - bottom
 
     # (a) decomposition: step effects, pooled over pools
@@ -359,8 +359,8 @@ def fig_r3() -> None:
     loss level with 95% run-bootstrap bands. Data: hospital_schemas_ap, extra_metrics paired_targets, deployment_modes_ap,
     q2_stress_wtl.csv. Higher = better."""
     hr, hp, hm = data.hospital_all()
-    fig = plt.figure(figsize=(S.FULL_W, 2.75))
-    top, bottom = 0.875, 0.355
+    fig = plt.figure(figsize=(S.FULL_W, 2.65))
+    top, bottom = 0.87, 0.368
     h = top - bottom
 
     # (a) UpSet of absent features at eICU hospitals (vasopressor 1 h)
@@ -731,8 +731,8 @@ def fig_r4() -> None:
     fq = reps[reps.method == "srs_c_v"].copy()
     fq["seconds"] = fq.phase_chains + fq.phase_select_q0
     fq = fq.groupby("n_candidates").seconds.agg(["median", "min", "max", "size"]).reset_index()
-    fig = plt.figure(figsize=(S.FULL_W, 2.45))
-    top, bottom = 0.861, 0.327
+    fig = plt.figure(figsize=(S.FULL_W, 2.4))
+    top, bottom = 0.858, 0.334
     h = top - bottom
 
     def sec_ticks(ax, values):
@@ -1035,9 +1035,153 @@ def fig_r6() -> None:
     S.save_exact(fig, "fig_r6_drives")
 
 
+def fig_r6g() -> None:
+    """Contract. Claim (RQ6): with the method frozen and the hypotheses committed before the first run, a second source
+    (eICU hospitals with the full schema) confirms the lead at real sites that lack features: SRS+T beats NMIFS (H1) and
+    every other established selector there, and NMIFS at MIMIC-IV and HiRID (H3); surrogates help SRS+T and NMIFS but not
+    mRMR (H4 fails), and SRS without target schemas does not beat NMIFS (H5 fails). In the drive domain surrogates decide
+    the outcome and the AUPRC decision helps only at the pre-specified budget. Evidence: (a) dot-whisker of the
+    pre-specified tests (difference of 6-run means, joint patient bootstrap), (b) heat map of SRS+T minus each comparator
+    at the sites per run with per-run significance glyphs, (c) stacked bars of how the drive registries' programs run,
+    (d) drive target AUPRC against K. Data: artifacts/v2/eicu_source/{summary,per_run}.csv, drive outputs as in fig_r6."""
+    from figs_v4 import ZERO as _ZERO
+    E = S.ART / "eicu_source"
+    summ = pd.read_csv(E / "summary.csv")
+    per = pd.read_csv(E / "per_run.csv")
+    rows, paired, abl = data.drives()
+    with_k = lambda pattern: pd.concat([pd.read_csv(f).assign(k=int(f.split("drive_k")[1].split("\\")[0].split("/")[0]))  # noqa: E731
+                                        for f in glob.glob(str(S.ART / pattern))], ignore_index=True)
+    hyb_rows = with_k("nmifs_ap/drive_k*/*/rows.csv")
+    rows = pd.concat([rows, hyb_rows[hyb_rows.registry == "nmifs_ap_t"]], ignore_index=True)
+    fig = plt.figure(figsize=(S.FULL_W, 2.35))
+    top, bottom = 0.848, 0.326
+    h = top - bottom
+
+    # (a) the pre-specified tests of the confirmatory study
+    ax = fig.add_axes([0.165, bottom, 0.125, h])
+    tests = [("H1", "srs_ap_t", "nmifs", "sites", "H1  SRS+T vs NMIFS"), ("H2", "srs_ap_t", "mrmr", "sites", "H2  SRS+T vs mRMR"),
+             ("H3", "srs_ap_t", "nmifs", "databases", "H3  same, other DBs"),
+             ("H4a", "srs_ap_t", "srs_ap_t:zero", "sites", "H4  surr. $-$ zero: SRS+T"), ("H4b", "nmifs", "nmifs:zero", "sites", "H4  surr. $-$ zero: NMIFS"),
+             ("H4c", "mrmr", "mrmr:zero", "sites", "H4  surr. $-$ zero: mRMR"), ("H5", "srs_ap", "nmifs", "sites", "H5  SRS vs NMIFS")]
+    out = []
+    for i, (hy, a, b, e, text) in enumerate(tests):
+        r = summ[(summ.hypothesis == hy) & (summ.a == a) & (summ.b == b) & (summ.endpoint == e)].iloc[0]
+        ok = bool(r.low > 0)
+        color = S.TEAL if ok else S.GREY
+        ax.hlines(i, 100 * r.low, 100 * r.high, color=color, lw=1.1)
+        ax.scatter(100 * r["diff"], i, s=16, facecolor=color if ok else "white", edgecolor=color, lw=0.9, zorder=3)
+        ax.text(1.04, i, f"{int(r.better)}/{int(r.ns)}/{int(r.worse)}", transform=ax.get_yaxis_transform(), va="center", ha="left", fontsize=FS,
+                color=S.INK2)
+        out.append({"hypothesis": hy, "a": a, "b": b, "endpoint": e, "diff": r["diff"], "low": r.low, "high": r.high, "holds": ok})
+    ax.text(1.04, -0.85, "b/n.s./w", transform=ax.get_yaxis_transform(), va="center", ha="left", fontsize=FS, color=S.INK2, fontweight="bold")
+    ax.axvline(0, color=S.INK2, lw=0.6)
+    for y in (2.5, 5.5):
+        ax.axhline(y, color=S.GREY_LIGHT, lw=0.6, ls=(0, (2, 1.5)))
+    ax.set_yticks(range(len(tests)), [t[4] for t in tests])
+    ax.set_ylim(len(tests) - 0.4, -0.7)
+    ax.set_xlabel("difference ($\\times$100)")
+    ax.tick_params(axis="y", length=0)
+    ax.legend(handles=[Line2D([], [], marker="o", color=S.TEAL, lw=1.0, label="holds"),
+                       Line2D([], [], marker="o", color=S.GREY, mfc="white", lw=1.0, label="fails")],
+              loc="upper center", bbox_to_anchor=(0.3, -0.2), ncol=2, handlelength=1.2, columnspacing=0.6, handletextpad=0.3)
+    ax.grid(axis="x")
+    title(ax, "Protocol tests", y=1.06)
+    letter(ax, "a", dx=-1.2, dy=1.06)
+    src("r6a_confirmatory_tests", pd.DataFrame(out))
+
+    # (b) SRS+T minus each comparator at the sites, per run
+    ax = fig.add_axes([0.47, bottom, 0.11, h])
+    run_order = [f"union_esrc_k{k}/e_eicu_{t}" for t in ("gap1h", "aki_gap6h") for k in (5, 10, 20)]
+    run_text = [f"{'V' if 'gap1h' in r else 'AKI'} {r.split('_k')[1].split('/')[0]}" for r in run_order]
+    comps = ["nmifs", "cmim", "mrmr", "dpp_ig", "l1_dropout", "mmrfs", "mms_xin_ig", "mrmr_filter_known", "l1_logistic", "mmr_ig",
+             "mrmr_stratified", "jmi", "srs_ap", "srs_c_val"]
+    sites = per[(per.a == "srs_ap_t") & (per.endpoint == "sites")]
+    mat, glyph = np.zeros((len(comps), len(run_order))), np.zeros((len(comps), len(run_order)))
+    for i, b in enumerate(comps):
+        for j, run in enumerate(run_order):
+            r = sites[(sites.b == b) & (sites.run == run)].iloc[0]
+            mat[i, j] = 100 * r["diff"]
+            glyph[i, j] = 1 if r.low > 0 else (-1 if r.high < 0 else 0)
+    lim = 6.0
+    im = ax.imshow(np.clip(mat, -lim, lim), cmap=S.DIV, vmin=-lim, vmax=lim, aspect="auto")
+    for i in range(mat.shape[0]):
+        for j in range(mat.shape[1]):
+            if glyph[i, j]:
+                ax.text(j, i, "\u25b2" if glyph[i, j] == 1 else "\u25bc", ha="center", va="center", fontsize=FS - 1.5,
+                        color="white" if abs(mat[i, j]) > 3.5 else S.INK)
+    ax.axhline(len(comps) - 2.5, color="white", lw=2.0)
+    ax.axvline(2.5, color="white", lw=2.0)
+    ax.set_yticks(range(len(comps)), [LABEL.get(b, b) for b in comps])
+    ax.set_xticks(range(len(run_order)), run_text, rotation=90)
+    ax.tick_params(length=0)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    cax = ax.inset_axes([1.06, 0.2, 0.07, 0.6])
+    cb = fig.colorbar(im, cax=cax, ticks=[-lim, 0, lim])
+    cb.ax.set_yticklabels(["\u22126", "0", "+6"])
+    cb.ax.tick_params(labelsize=FS, length=0, pad=1.5)
+    cb.outline.set_visible(False)
+    cb.set_label("SRS+T $-$ comp. ($\\times$100)", fontsize=FS, labelpad=1)
+    title(ax, "At the sites, per run", y=1.06)
+    letter(ax, "b", dx=-0.82, dy=1.06)
+    src("r6b_confirmatory_runs", pd.DataFrame(mat, index=[LABEL.get(b, b) for b in comps], columns=run_text).reset_index())
+
+    # (c) drives: how the K = 10 programs run at the three targets
+    ax = fig.add_axes([0.72, bottom, 0.088, h])
+    ex = pd.read_csv(S.ART / "paper_v3_cache/drive_executability.csv")
+    ex = ex[ex.k == 10]
+    meths = ["srs_ap_t", "srs_ap", "nmifs_ap_t", "nmifs", "mrmr", "l1_dropout", "fs_cv"]
+    tot = ex.groupby("registry")[["primary", "surrogate", "zeroed"]].sum().loc[meths]
+    left = np.zeros(len(meths))
+    for col, text, color in (("primary", "selected", S.TEAL), ("surrogate", "surrogate", S.TEAL_LIGHT), ("zeroed", "zeroed", _ZERO)):
+        ax.barh(range(len(meths)), tot[col].values, left=left, color=color, height=0.7, edgecolor="white", lw=0.5, label=text)
+        for k_, v_ in enumerate(tot[col].values):
+            if v_ >= 5:
+                ax.text(left[k_] + v_ / 2, k_, str(int(v_)), ha="center", va="center", fontsize=FS, color="white" if col == "primary" else S.INK)
+        left += tot[col].values
+    ax.set_yticks(range(len(meths)), [LABEL[m] for m in meths])
+    ax.set_ylim(len(meths) - 0.5, -0.6)
+    ax.set_xlim(0, 30)
+    ax.set_xticks([0, 10, 20, 30])
+    ax.set_xlabel("program\u2013target pairs")
+    ax.legend(ncol=1, loc="upper center", bbox_to_anchor=(0.35, -0.2), handlelength=0.8, labelspacing=0.2)
+    ax.spines["left"].set_visible(False)
+    ax.tick_params(axis="y", length=0)
+    title(ax, "Drive programs", y=1.06)
+    letter(ax, "c", dx=-0.95, dy=1.06)
+    src("r6c_drive_executability", ex)
+
+    # (d) drives: mean target AUPRC against K
+    ax = fig.add_axes([0.905, bottom, 0.085, h])
+    ref = rows[rows.registry == "srs_ap_t"].set_index("k").mean_target_auprc.loc[[5, 10, 20]]
+    out = []
+    series = [("srs_ap_t", "SRS+T"), ("srs_c_val", "lik."), ("l1_dropout", "L1+drop.")]
+    for m, text in series:
+        vals = rows[rows.registry == m].set_index("k").mean_target_auprc.loc[[5, 10, 20]].values
+        sty = style_of(m) if m != "srs_c_val" else dict(color=S.TEAL_DARK, ls=(0, (4, 1.5)), marker="o", lw=1.0, mfc="white")
+        ax.plot([5, 10, 20], vals, color=sty["color"], ls=sty["ls"], marker=sty["marker"], ms=3, mfc=sty["mfc"], mec=sty["color"], lw=sty["lw"], label=text)
+        out.append({"variant": m, "k5": vals[0], "k10": vals[1], "k20": vals[2]})
+    d = abl[(abl.a == "srs_ap_t") & (abl.b == "srs_ap_t_nosur") & (abl.target == "mean_over_targets")].set_index("k").point_diff.loc[[5, 10, 20]]
+    vals = ref.values - d.values
+    ax.plot([5, 10, 20], vals, color=S.WARM, ls=(0, (3, 1.5)), marker="o", ms=3, mfc="white", mec=S.WARM, lw=1.0, label="no surr.")
+    out.append({"variant": "srs_ap_t_nosur", "k5": vals[0], "k10": vals[1], "k20": vals[2]})
+    ax.set_xscale("log", base=2)
+    ax.set_xticks([5, 10, 20], ["5", "10", "20"])
+    ax.minorticks_off()
+    ax.set_xlabel("budget $K$")
+    ax.set_ylabel("mean target AUPRC")
+    ax.set_ylim(0.55, None)
+    ax.legend(loc="lower right", handlelength=1.0, labelspacing=0.15, handletextpad=0.25, borderpad=0.1, borderaxespad=0.05)
+    ax.grid(axis="y")
+    title(ax, "Drive budget", y=1.06)
+    letter(ax, "d", dx=-0.5, dy=1.06)
+    src("r6d_drive_budget", pd.DataFrame(out))
+    S.save_exact(fig, "fig_r6_generalization")
+
+
 if __name__ == "__main__":
     pd.set_option("display.width", 200)
-    figs = {"r1": fig_r1, "r2": fig_r2, "r3": fig_r3, "r4": fig_r4, "r5": fig_r5, "r6": fig_r6}
+    figs = {"r1": fig_r1, "r2": fig_r2, "r3": fig_r3, "r4": fig_r4, "r5": fig_r5, "r6": fig_r6g, "r6_drives": fig_r6}
     for name in sys.argv[1:] or list(figs):
         figs[name]()
         print("wrote", name)

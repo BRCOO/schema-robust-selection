@@ -69,3 +69,22 @@ A hypothesis holds when the 95% interval of the difference of the 6-run means li
 Every other comparison is descriptive. All results are reported whatever their direction, and a hypothesis that fails is
 reported as failed. Technical failures (for example a crashed job) are fixed without changing any analysis choice, and any
 such fix is listed with the results.
+
+## 7. Results (appended on 2026-11-07 after the runs; Sections 1-6 are unchanged)
+
+All six runs (vasopressor 1 h and AKI 6 h at K = 5, 10, 20) completed; there was no deviation from the protocol. The
+primary endpoint pools 1,814 vasopressor and 6,267 AKI episodes of the site targets (2 and 13 episodes of patients with
+source episodes were removed). Code: `scripts/v2/run_eicu_source_study.py` (phases build, run, dump, boot, summarize).
+
+| Hypothesis | Difference of 6-run means, AUPRC x 100 [95% interval] | Runs better / n.s. / worse | Verdict |
+|---|---|---|---|
+| H1 SRS+T - NMIFS, sites | +0.54 [+0.05, +1.00] | 2 / 4 / 0 | holds |
+| H2 SRS+T - mRMR, sites | +1.96 [+1.40, +2.44] | 4 / 2 / 0 | holds |
+| H3 SRS+T - NMIFS, MIMIC-IV and HiRID | +1.26 [+1.00, +1.50] | 3 / 3 / 0 | holds |
+| H4 surrogates - zeroing, sites: SRS+T | +0.68 [+0.46, +0.90] | 2 / 4 / 0 | |
+| H4 surrogates - zeroing, sites: NMIFS | +0.15 [+0.05, +0.25] | 3 / 3 / 0 | |
+| H4 surrogates - zeroing, sites: mRMR | +0.07 [-0.04, +0.18] | 1 / 5 / 0 | H4 fails |
+| H5 SRS - NMIFS, sites | -0.47 [-1.01, +0.05] | 0 / 5 / 1 | fails |
+
+Descriptive (not tested): at the sites SRS+T led every established selector, from CMIM (+1.39 [+0.95, +1.81]) to JMI
+(+5.07 [+4.41, +5.70]); SRS+T - SRS +1.01 [+0.54, +1.45]; SRS+T - SRS+T with the likelihood decision +0.90 [+0.54, +1.21].

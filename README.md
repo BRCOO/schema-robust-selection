@@ -24,6 +24,7 @@ from the raw tables.
 | `launchers/` | the exact launch scripts used for the paper (workstation paths) |
 | `docs/harmonization_spec.md` | feature mappings of the three ICU databases and the evidence behind them |
 | `docs/drive_protocol_2026-11-02.md` | the drive domain's protocol (in Chinese): data, comparators, hypotheses H1-H3 and decision rules, written on 2026-11-02 before any selection on drives; its Section 6 (results) was appended after the runs without changing Sections 1-5 |
+| `docs/confirmatory_protocol_2026-11-07.md` | the confirmatory study with eICU as the source and eICU hospitals with their own schemas as targets: design, endpoints, hypotheses H1-H5 and decision rule, committed before the study's first run |
 
 ## Environment
 

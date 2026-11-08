@@ -56,7 +56,8 @@ CONFIGS = {"srs_ap_t": (True, "srs_c_val"), "srs_ap": (False, "srs_c_unknown_val
 
 
 def jobs(args):
-    runs = [tuple(x.split(":")) for x in args.runs.split(",") if x] or list(ctx.ICU_RUNS)
+    # --runs none: no ICU run (only the drive budgets of --drive-k)
+    runs = [] if args.runs == "none" else [tuple(x.split(":")) for x in args.runs.split(",") if x] or list(ctx.ICU_RUNS)
     out = [(f"{root}/{label}", *ctx.run_dirs(root, label), True) for root, label in runs]
     out += [(f"drive_k{k}/f_backblaze_seagate_gap2d", *ctx.drive_dirs(int(k)), False) for k in args.drive_k.split(",") if k]
     return out

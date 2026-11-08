@@ -49,6 +49,13 @@ OUT_REFS = ROOT / "artifacts/v2/references"
 OUT_SEEDS = ROOT / "artifacts/v2/seed_replicates"
 
 
+def only_runs(args, root, labels):
+    """The labels of ``root`` named in ``--runs`` (root:label pairs, any label), or ``labels`` when ``--runs`` is empty."""
+    if not args.runs:
+        return list(labels)
+    return [label for r, label in (x.split(":") for x in args.runs.split(",") if x) if r == root]
+
+
 def known_schemas(run, e3_dir):
     names = json.loads((Path(e3_dir) / "manifest.json").read_text(encoding="utf-8"))["args"]["known_targets"].split(",")
     return {t.name: t.features for t in run.targets if t.name in names}
@@ -111,8 +118,9 @@ def phase_refs(args) -> None:
 
 def phase_seeds(args) -> None:
     root = args.root
-    out_root = OUT_SEEDS if root == "union" else OUT_SEEDS / root
-    labels = ctx.LARGE if root.startswith("union_large") else ctx.STANDARD
+    base = Path(args.seeds_out) if args.seeds_out else OUT_SEEDS
+    out_root = base if root == "union" else base / root
+    labels = only_runs(args, root, ctx.LARGE if root.startswith("union_large") else ctx.STANDARD)
     names = [x for x in args.configs.split(",") if x] if args.configs else (["srs_ap_t"] if args.with_srs else []) + ["nmifs_ap_t", "srs_ap_unaware"]
     fname = f"rows_{args.tag}.csv" if args.tag else "rows.csv"
     for label in labels:
@@ -163,7 +171,7 @@ def phase_compilable(args) -> None:
 
     sb = ctx.selection_baselines_module()
     root = args.root
-    labels = ctx.LARGE if root.startswith("union_large") else ctx.STANDARD
+    labels = only_runs(args, root, ctx.LARGE if root.startswith("union_large") else ctx.STANDARD)
     for label in labels:
         out = ROOT / "artifacts/v2/compilable_only" / root / label
         if (out / "paired.csv").exists():
@@ -217,6 +225,7 @@ def main(argv=None) -> int:
     parser.add_argument("--with-srs", action="store_true", help="seeds phase: also re-select SRS+T")
     parser.add_argument("--configs", default="", help="seeds phase: comma list of srs_ap_t, srs_ap, nmifs_ap_t, srs_ap_unaware")
     parser.add_argument("--tag", default="", help="seeds phase: output rows_<tag>.csv instead of rows.csv")
+    parser.add_argument("--seeds-out", default="", help="seeds phase: output root (default artifacts/v2/seed_replicates)")
     args = parser.parse_args(argv)
     {"refs": phase_refs, "seeds": phase_seeds, "compilable": phase_compilable}[args.phase](args)
     return 0

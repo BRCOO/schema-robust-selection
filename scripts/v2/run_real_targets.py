@@ -8,6 +8,7 @@ re-selected; deployment with surrogate chains as in run_union_ap.py --phase eval
 """
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import json
 import sys
@@ -35,9 +36,12 @@ NAMES = ("srs_ap_t", "srs_ap", "nmifs_ap_t", "srs_ap_unaware", "fs_cv", "nmifs",
 ALIASES = {"mmr_ig": "mmr", "mms_xin_ig": "mms_xin", "dpp_ig": "dpp"}
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--runs", default="", help="comma list of root:label (default: the 16 ICU runs)")
+    args = parser.parse_args(argv)
     sb = ctx.selection_baselines_module()
-    for root, label in ctx.ICU_RUNS:
+    for root, label in [tuple(x.split(":")) for x in args.runs.split(",") if x] or ctx.ICU_RUNS:
         run_id = f"{root}/{label}"
         out = OUT / run_id
         if (out / "paired.csv").exists():

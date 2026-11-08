@@ -7,6 +7,7 @@ re-selected; deployment and bootstrap as in run_union_ap.py --phase evaluate.
 """
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import json
 import sys
@@ -31,13 +32,13 @@ OUT = ROOT / "artifacts/v2/paired_extra"
 PAIRS = (("srs_ap", "nmifs_ap_t"), ("srs_ap_t", "srs_ap"), ("srs_ap_t", "srs_c_val"), ("srs_ap_t", "nmifs_ap_t"))
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--runs", default="", help="comma list of root:label (default: the 16 ICU runs; none: no ICU run)")
+    parser.add_argument("--drive-k", default="5,10,20")
+    args = parser.parse_args(argv)
     sb = ctx.selection_baselines_module()
-
-    class Args:
-        runs, drive_k = "", "5,10,20"
-
-    for label, e3_dir, extra_dir, icu in ap.jobs(Args):
+    for label, e3_dir, extra_dir, icu in ap.jobs(args):
         out = OUT / label
         if (out / "paired.csv").exists() and "srs_c_val" in (out / "paired.csv").read_text(encoding="utf-8"):
             print(f"[pairs] {label}: done, skipped", flush=True)

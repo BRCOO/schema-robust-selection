@@ -10,6 +10,7 @@ chains as in run_union_ap.py --phase evaluate.
 """
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import json
 import sys
@@ -37,9 +38,12 @@ PAIRS = (("fs_cv", "nmifs"), ("srs_ap_unaware", "fs_cv"), ("srs_ap", "srs_ap_una
 ABLATION = {"srs_ap_unaware": "srs_ap_unaware", "srs_ap_t_nosurr": "srs_ap_t_nosur"}
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--runs", default="", help="comma list of root:label (default: the 16 ICU runs)")
+    args = parser.parse_args(argv)
     sb = ctx.selection_baselines_module()
-    for root, label in ctx.ICU_RUNS:
+    for root, label in [tuple(x.split(":")) for x in args.runs.split(",") if x] or ctx.ICU_RUNS:
         run_id = f"{root}/{label}"
         out = OUT / run_id
         if (out / "paired.csv").exists():

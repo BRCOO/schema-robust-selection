@@ -213,7 +213,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--ref-t", default="srs_c_val", help="the method with known target schemas")
     parser.add_argument("--ref", default="srs_c_unknown_val", help="the source-only method")
     args = parser.parse_args(argv)
-    runs = [tuple(x.split(":")) for x in args.runs.split(",") if x] or list(ctx.ICU_RUNS)
+    # --runs none: no ICU run (only the drive budgets of --drive-k)
+    runs = [] if args.runs == "none" else [tuple(x.split(":")) for x in args.runs.split(",") if x] or list(ctx.ICU_RUNS)
     jobs = [(f"{root}/{label}", *ctx.run_dirs(root, label)) for root, label in runs]
     jobs += [(f"drive_k{k}/f_backblaze_seagate_gap2d", *ctx.drive_dirs(int(k))) for k in args.drive_k.split(",") if k]
     registries = tuple(x for x in args.registries.split(",") if x)

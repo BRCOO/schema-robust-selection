@@ -42,6 +42,8 @@ def readable(p) -> str:
         return " -> ".join(items(s) for s in p.elements)
     if p.kind in ("unordered_rule", "ordered_rule"):
         return " -> ".join(items(s) for s in p.elements) + " => " + " -> ".join(items(s) for s in p.consequent)
+    if p.kind == "predicate":  # window statistic against a TRAIN quantile threshold
+        return f"{p.params['stat']}({p.params['feature']}) {'>=' if p.params['op'] == 'ge' else '<='} {float(p.params['threshold']):.4g}"
     raw = ", ".join(f"{v:g}" for v in p.params.get("raw_template", ()))
     text = f"{p.kind}({p.params.get('feature')}, L={p.params.get('length')}, raw template [{raw}]"
     if p.kind == "shapelet":

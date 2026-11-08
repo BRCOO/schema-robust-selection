@@ -58,6 +58,8 @@ def keep(program, restrict: str) -> bool:
     if frozenset(program.features) & CARE:
         return False
     if restrict == "care_obs":
+        if program.kind == "predicate" and program.params.get("stat") == "missing":  # the window's share of missing measurements
+            return False
         tokens = [t for itemset in (*program.elements, *program.consequent) for t in itemset]
         return not any(t.endswith(":missing") or t.endswith(":sparse_measurement") for t in tokens)
     return True

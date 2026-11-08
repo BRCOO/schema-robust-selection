@@ -25,6 +25,7 @@ PROGRAM_KINDS = (
     "unordered_rule",  # all antecedent items (any order) before all consequent items (RuleGrowth)
     "motif",  # numeric subsequence matched by z-normalized distance (matrix profile)
     "shapelet",  # numeric subsequence matched by distance threshold (shapelets)
+    "predicate",  # one window statistic of one feature against a TRAIN quantile (baselines/predicates.py)
 )
 
 OTHER_GROUP_PREFIX = "other:"
@@ -86,6 +87,9 @@ class ProgramRecord:
         """Identity used for exact-duplicate detection. Ignores id, score, and params
         except the numeric payload that defines a motif or shapelet."""
         numeric = ()
+        if self.kind == "predicate":
+            numeric = (self.params.get("feature"), self.params.get("stat"), self.params.get("op"),
+                       round(float(self.params.get("threshold", 0.0)), 9))
         if self.kind in ("motif", "shapelet"):
             numeric = (
                 self.params.get("feature"),

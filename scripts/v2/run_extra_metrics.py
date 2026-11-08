@@ -10,6 +10,7 @@ Writes artifacts/v2/extra_metrics/<root>/<label>/{rows.csv, paired_targets.csv}.
 """
 from __future__ import annotations
 
+import argparse
 import importlib.util
 import sys
 import time
@@ -39,9 +40,12 @@ def brier(y, p) -> float:
     return float(np.mean((np.asarray(p, dtype=float) - y) ** 2))
 
 
-def main() -> int:
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--runs", default="", help="comma list of root:label (default: the 16 ICU runs)")
+    args = parser.parse_args(argv)
     sb = ctx.selection_baselines_module()
-    for root, label in ctx.ICU_RUNS:
+    for root, label in [tuple(x.split(":")) for x in args.runs.split(",") if x] or ctx.ICU_RUNS:
         out = OUT / root / label
         if (out / "paired_targets.csv").exists():
             print(f"[extra] {root}/{label}: done, skipped", flush=True)

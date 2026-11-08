@@ -19,12 +19,13 @@ from the raw tables.
 | `scripts/v2/` | drivers for every experiment (one script per analysis; each is resumable or rewrites its own output folder) |
 | `scripts/v2/paper_v3/` | the paper's figures (`figs_v5.py`, `figs_motivation.py`), tables (`tables.py`) and summary statistics (`round2.py`) |
 | `scripts/v2/run_joint_bootstrap.py` | the primary statistic: a patient bootstrap applied jointly to all 16 runs, with random effects over the six pools |
-| `src/icu/` (v1 modules), `scripts/run_mimic_experiment.py`, `nonstationary_miner.py` | the FMG rule miner, reused unchanged as one of the five generators |
+| `src/icu/` (v1 modules), `scripts/run_mimic_experiment.py`, `nonstationary_miner.py` | the FMG rule miner, reused unchanged as one of the six generators |
 | `tests/v2/` | unit tests (`pytest -q tests/v2`) |
 | `launchers/` | the exact launch scripts used for the paper (workstation paths) |
 | `docs/harmonization_spec.md` | feature mappings of the three ICU databases and the evidence behind them |
 | `docs/drive_protocol_2026-11-02.md` | the drive domain's protocol (in Chinese): data, comparators, hypotheses H1-H3 and decision rules, written on 2026-11-02 before any selection on drives; its Section 6 (results) was appended after the runs without changing Sections 1-5 |
 | `docs/confirmatory_protocol_2026-11-07.md` | the confirmatory study with eICU as the source and eICU hospitals with their own schemas as targets: design, endpoints, hypotheses H1-H5 and decision rule, committed before the study's first run |
+| `docs/confirmatory2_protocol_2026-11-08.md` | the second confirmatory study: the same design on pools with the window-statistic predicates, CV seeds 0-4, statistic-model comparators, hypotheses H1-H7, committed before its first run |
 
 ## Environment
 
@@ -43,7 +44,8 @@ differ by up to 5e-4 and a probe's penalty can flip between near-tied values (16
    `python scripts/v2/run_full_track.py --gap 1` (and `--gap 2`, `--gap 4`, `--gap 6 --task aki_onset`). The leakage gate
    exits with status 2 on a suspected leak.
 3. **Selector tuning and per-generator baselines**: `scripts/v2/run_selector_analysis.py`, then
-   `scripts/v2/run_selection_baselines.py [--k 5|10|20]`.
+   `scripts/v2/run_selection_baselines.py [--k 5|10|20]`. The sixth generator, window-statistic predicates
+   (`src/icu/v2/baselines/predicates.py`), is added to finished pools by `scripts/v2/add_statistic_predicates.py`.
 4. **Union pools** (the main experiments): `scripts/v2/run_union_selection.py --pools <pools.pkl> --e1-dir <E1 dir> [--k K]`;
    large pools: re-mine with `scripts/v2/run_discovery_comparison.py` (SPMF `pool_cap` 1000, ten motifs and shapelets per
    feature), then the same driver with `--k 10|20`. Add-on comparators (JMI, CMIM, L1 with schema dropout, stress curves):

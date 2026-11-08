@@ -21,6 +21,11 @@ every schema feature has a row), plus the frozen source bin edges ``edges(featur
   columns of the target schema; otherwise it is not run and its surrogate is resolved instead.
 
 FMG's legacy rules fire by v1 rule-id matching and are not compiled (:func:`compilable`).
+
+Window-statistic predicates (``baselines/predicates.py``) compile to one aggregate over the observed rows of their
+feature (MIN, MAX, AVG, STDDEV_POP, the value at the latest observed bin, REGR_SLOPE on the bin index, the share of
+unobserved bins; for status features the share of on bins, the changes between consecutive observed bins and the
+latest state), compared with the frozen TRAIN threshold within the generator's relative tolerance.
 """
 
 from __future__ import annotations
@@ -44,6 +49,7 @@ from src.icu.v2.types import ProgramRecord
 
 SYMBOLIC = ("sequence", "ordered_rule", "unordered_rule")
 NUMERIC = ("motif", "shapelet")
+PREDICATE = ("predicate",)
 
 
 def _q(text: str) -> str:
@@ -55,6 +61,8 @@ def _num(x: float) -> str:
 
 
 def compilable(program: ProgramRecord) -> bool:
+    if program.kind in PREDICATE:
+        return True
     if program.kind in NUMERIC:
         return program.params.get("missing_policy", "strict") == "strict" and bool(program.params.get("normalize", True))
     return program.kind in SYMBOLIC and program.method != "fmg_bridge"
@@ -167,10 +175,38 @@ WHERE SQRT(CASE WHEN d2 <= {_num(SNAP_REL)} * norms THEN 0.0 ELSE d2 END) <= {_n
     return f"SELECT DISTINCT episode_id FROM obs EXCEPT ({close})"
 
 
+def _predicate_sql(program: ProgramRecord) -> str:
+    from src.icu.v2.baselines.predicates import tolerance
+
+    params = program.params
+    f, stat, op = params["feature"], params["stat"], params["op"]
+    threshold = float(params["threshold"])
+    bound = threshold - tolerance(threshold) if op == "ge" else threshold + tolerance(threshold)
+    cmp = ">=" if op == "ge" else "<="
+    on = f"(CASE WHEN value > {_num(INTERVENTION_ON_THRESHOLD)} THEN 1.0 ELSE 0.0 END)"
+    if stat == "missing":
+        return (f"SELECT episode_id FROM obs WHERE feature = {_q(f)} GROUP BY episode_id "
+                f"HAVING 1.0 - COUNT(value) * 1.0 / COUNT(*) {cmp} {_num(bound)}")
+    if stat == "transitions":
+        return f"""WITH o AS (SELECT episode_id, t, {on} AS s FROM obs WHERE feature = {_q(f)} AND value IS NOT NULL),
+l AS (SELECT episode_id, s, LAG(s) OVER (PARTITION BY episode_id ORDER BY t) AS p FROM o)
+SELECT episode_id FROM l GROUP BY episode_id
+HAVING SUM(CASE WHEN p IS NOT NULL AND s <> p THEN 1 ELSE 0 END) {cmp} {_num(bound)}"""
+    status = f in INTERVENTION_FEATURES
+    expr = {"min": "MIN(value)", "max": "MAX(value)", "mean": "AVG(value)", "std": "STDDEV_POP(value)",
+            "last": f"arg_max({on if status else 'value'}, t)", "slope": "REGR_SLOPE(value, t)", "onratio": f"AVG({on})"}[stat]
+    # DuckDB orders NaN above every number, so a 0/0 slope must not reach the comparison; a slope needs two observations
+    guard = "COUNT(value) >= 2 AND " if stat == "slope" else ""
+    return (f"SELECT episode_id FROM obs WHERE feature = {_q(f)} AND value IS NOT NULL GROUP BY episode_id "
+            f"HAVING {guard}{expr} IS NOT NULL AND NOT isnan({expr}) AND {expr} {cmp} {_num(bound)}")
+
+
 def program_sql(program: ProgramRecord) -> str:
     """A query returning the episodes on which ``program`` fires (see the module docstring)."""
     if not compilable(program):
         raise ValueError(f"{program.program_id}: {program.kind} of {program.method} is not compiled to SQL")
+    if program.kind in PREDICATE:
+        return _predicate_sql(program)
     if program.kind in NUMERIC:
         return _numeric_sql(program)
     if program.kind == "unordered_rule":

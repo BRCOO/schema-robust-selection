@@ -331,7 +331,7 @@ def seeds() -> None:
     cnt = allseeds.groupby(["run", "registry"]).seed.nunique().unstack()
     print("\n== seeds available per run and registry")
     print(cnt.to_string())
-    allseeds.to_csv(SRC / "q2_seeds_long.csv", index=False)
+    allseeds.to_csv(SRC / "q2_seeds_available.csv", index=False)  # q2_seeds_long.csv is seeds_pooled's
 
 
 def seed_table() -> pd.DataFrame:

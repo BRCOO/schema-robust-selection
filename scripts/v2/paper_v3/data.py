@@ -27,7 +27,7 @@ def run_name(root: str, label: str) -> str:
 
 def generator_of(pid: str) -> str:
     for prefix, name in (("erminer_", "ERMiner"), ("prefixspan_", "PrefixSpan"), ("shapelet:", "Shapelet"),
-                         ("matrix_profile:", "Motif"), ("program_", "FMG")):
+                         ("matrix_profile:", "Motif"), ("program_", "FMG"), ("stat:", "Statistic")):
         if pid.startswith(prefix):
             return name
     return "other"

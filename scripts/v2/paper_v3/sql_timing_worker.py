@@ -85,6 +85,7 @@ def measure(engine: str, replicate: int) -> None:
         con.close()
         shutil.rmtree(work, ignore_errors=True)
     else:
+        from src.icu.v2.baselines.predicates import predicate_firing_sets, statistic_table
         from src.icu.v2.events import eventize_episode
         from src.icu.v2.numeric_firing import numeric_firing_sets
         from src.icu.v2.patterns import firing_sets
@@ -93,11 +94,15 @@ def measure(engine: str, replicate: int) -> None:
         episodes = {f"{e}#{i}": arrays[e] for i in range(replicate) for e in c["eids"]} if replicate > 1 else arrays
         symbolic = [b for b in c["resolved"] if b.kind in ("sequence", "ordered_rule", "unordered_rule")]
         numeric = [b for b in c["resolved"] if b.kind in ("motif", "shapelet")]
+        predicate = [b for b in c["resolved"] if b.kind == "predicate"]
         th.start()
         t0 = time.perf_counter()
         seqs = {e: eventize_episode(v, m, f, c["bins"], observation_tokens=True, trend_tokens=False) for e, (v, m, f) in episodes.items()}
         t1 = time.perf_counter()
         fired = {**firing_sets(symbolic, seqs), **numeric_firing_sets(numeric, episodes)}
+        if predicate:  # the window statistics of the referenced features, then the thresholds
+            ids, columns, table = statistic_table(episodes, sorted({b.params["feature"] for b in predicate}))
+            fired.update(predicate_firing_sets(predicate, ids, columns, table))
         row.update({"seconds_tokens": t1 - t0, "seconds_registry": time.perf_counter() - t1})
     stop.set()
     th.join()

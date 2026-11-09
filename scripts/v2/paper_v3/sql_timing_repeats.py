@@ -27,6 +27,7 @@ sqlx = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(sqlx)
 ctx = sqlx.ctx
 
+from src.icu.v2.baselines.predicates import predicate_firing_sets, statistic_table  # noqa: E402
 from src.icu.v2.events import eventize_episode  # noqa: E402
 from src.icu.v2.numeric_firing import numeric_firing_sets  # noqa: E402
 from src.icu.v2.patterns import firing_sets  # noqa: E402
@@ -101,6 +102,7 @@ shutil.rmtree(work, ignore_errors=True)
 
 symbolic = [b for b in resolved if b.kind in ("sequence", "ordered_rule", "unordered_rule")]
 numeric = [b for b in resolved if b.kind in ("motif", "shapelet")]
+predicate = [b for b in resolved if b.kind == "predicate"]
 for r in [int(x) for x in args.python_scales.split(",")]:
     episodes = {f"{e}#{i}": arrays[e] for i in range(r) for e in eids} if r > 1 else arrays
     for rep in range(args.repeats):
@@ -109,6 +111,9 @@ for r in [int(x) for x in args.python_scales.split(",")]:
         t_tok = time.perf_counter() - t0
         t1 = time.perf_counter()
         fired = {**firing_sets(symbolic, seqs), **numeric_firing_sets(numeric, episodes)}
+        if predicate:  # the window statistics of the referenced features, then the thresholds
+            ids, columns, table = statistic_table(episodes, sorted({b.params["feature"] for b in predicate}))
+            fired.update(predicate_firing_sets(predicate, ids, columns, table))
         t_reg = time.perf_counter() - t1
         row = {"engine": "python", "replicate": r, "repeat": rep, "n_episodes": len(episodes), "seconds_tokens": t_tok,
                "seconds_registry": t_reg, "peak_rss_gb": proc.memory_info().rss / 2**30, "n_fired": int(sum(len(v) for v in fired.values()))}

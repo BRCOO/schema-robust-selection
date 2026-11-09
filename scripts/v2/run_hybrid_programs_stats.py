@@ -37,7 +37,9 @@ K = 10
 REAL = ("eicu", "hirid")
 CONTROLLED = ("drop_labs", "drop_ventilation", "drop_bp", "drop_urine", "vitals_only")
 CONTRASTS = (("stats_lr+srs", "stats_lr"), ("stats_gbdt+srs", "stats_gbdt"), ("kstats+srs", "kstats"), ("kstats+srs", "kstats2"),
-             ("kstats+nmifs", "kstats2"), ("kstats+srs", "kstats+nmifs"), ("stats_lr+nmifs", "stats_lr"))
+             ("kstats+nmifs", "kstats2"), ("kstats+srs", "kstats+nmifs"), ("stats_lr+nmifs", "stats_lr"),
+             # programs alone against K statistics (same fitting code; added with the predicate generator, 2026-11-08)
+             ("prog_srs", "kstats"), ("prog_nmifs", "kstats"), ("prog_srs", "prog_nmifs"), ("stats_gbdt", "prog_srs"))
 
 
 def _module(name: str, path: Path):

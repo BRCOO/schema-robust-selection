@@ -58,10 +58,11 @@ def fig_c1() -> None:
     ax = fig.add_axes([0.57, bottom, 0.42, h])
     CTRL = [t for t in TGT if t.startswith("drop") or t == "vitals_only"]
     ax.axvline(internal, color=S.TEAL_DARK, lw=0.8, ls=(0, (2, 2)))
+    x_lo = float(np.floor(20 * (zero[CTRL].min() - 0.02)) / 20)
     ax.text(internal - 0.005, 0.2, f"source\n{internal:.3f}", fontsize=FS, color=S.TEAL_DARK, ha="right", va="center")
     for k, t in enumerate(TGT):
         if t not in CTRL:
-            ax.text(0.505, k, "other patients", fontsize=FS, color=S.GREY, style="italic", va="center", ha="left")
+            ax.text(x_lo + 0.005, k, "other patients", fontsize=FS, color=S.GREY, style="italic", va="center", ha="left")
             continue
         ax.plot([zero[t], internal], [k, k], color=S.GREY_PALE, lw=2.2, solid_capstyle="round", zorder=1)
         ax.scatter(zero[t], k - 0.16, s=15, color=S.WARM, zorder=3, label="zeroed" if t == CTRL[0] else None)
@@ -69,8 +70,8 @@ def fig_c1() -> None:
     ax.set_yticks(y, [])
     ax.tick_params(axis="y", length=0)
     ax.set_ylim(len(TGT) - 0.5, -0.6)
-    ax.set_xlim(0.5, 0.79)
-    ax.set_xticks([0.5, 0.6, 0.7])
+    ax.set_xlim(x_lo, internal + 0.012)
+    ax.set_xticks([t for t in (0.6, 0.7, 0.8) if x_lo <= t <= internal])
     ax.set_xlabel("AUPRC, same TEST patients")
     ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.28), ncol=2, handletextpad=0.1, borderpad=0.2, columnspacing=0.8)
     ax.grid(axis="x")
@@ -90,9 +91,9 @@ def fig_c2() -> None:
     d = d[d.step == 1]
     fig = plt.figure(figsize=(S.COL_W, 2.15))
     bottom, h = 0.38, 0.51
-    marker = {"ERMiner": "o", "PrefixSpan": "s", "Motif": "^", "Shapelet": "D", "FMG": "v"}
+    marker = {"ERMiner": "o", "PrefixSpan": "s", "Motif": "^", "Shapelet": "D", "FMG": "v", "Statistic": "P"}
     # generators in neutrals: greys for token programs, sands for series programs (teal, blue and sky blue denote selectors)
-    color = {"ERMiner": "#4D4D4D", "PrefixSpan": "#9A9A9A", "Motif": S.SAND, "Shapelet": "#7D6440", "FMG": S.INK}
+    color = {"ERMiner": "#4D4D4D", "PrefixSpan": "#9A9A9A", "Motif": S.SAND, "Shapelet": "#7D6440", "FMG": S.INK, "Statistic": "#C9B58F"}
     for k, (col, name) in enumerate((("mrmr", "mRMR score"), ("srs_estimate", "likelihood estimate (bits)"))):
         ax = fig.add_axes([0.16 + k * 0.44, bottom, 0.37, h])
         for g in GEN_ORDER:

@@ -91,3 +91,33 @@ such fix is listed with the results.
 `scripts/v2/run_eicu_source_study.py --variant stat`, phases run (pools, selection, CV seeds), stats (statistic models), dump,
 boot and summarize, at the commit that adds this protocol. Outputs: `artifacts/v2/eicu_source2/` and the roots
 `union_esrc2_k5`, `union_esrc2_k10`, `union_esrc2_k20`.
+
+## 8. Results (appended on 2026-11-09 after the runs; Sections 1-7 are unchanged)
+
+All six runs (vasopressor 1 h and AKI 6 h at K = 5, 10, 20) completed, with CV seeds 1-4 for SRS+T, SRS, SRS+T with the
+likelihood decision and SRS+T on the first study's pools. There was no deviation from the protocol. The predicate generator
+added 200 predicates to each task's pool. Technical notes: the summarize phase was started by hand once its inputs existed
+(same command); nothing else was run outside the job queue.
+
+| Hypothesis | Difference of 6-run means, AUPRC x 100 [95% interval] | Runs better / n.s. / worse | Verdict |
+|---|---|---|---|
+| H1 SRS+T - NMIFS, sites | +0.41 [-0.07, +0.88] | 2 / 4 / 0 | fails |
+| H2 SRS+T - mRMR, sites | +1.24 [+0.68, +1.80] | 5 / 1 / 0 | holds |
+| H3 SRS+T - NMIFS, MIMIC-IV and HiRID | +0.59 [+0.26, +0.92] | 3 / 3 / 0 | holds |
+| H4 surrogates - zeroing, sites: SRS+T | +0.44 [+0.02, +0.86] | 1 / 5 / 0 | |
+| H4 surrogates - zeroing, sites: NMIFS | +0.03 [-0.29, +0.35] | 0 / 4 / 2 | |
+| H4 surrogates - zeroing, sites: mRMR | +0.05 [-0.29, +0.39] | 0 / 6 / 0 | H4 fails |
+| H5 SRS - NMIFS, sites | +0.21 [-0.25, +0.66] | 1 / 5 / 0 | fails |
+| H6 SRS+T, extended - first study's pools, sites | +4.70 [+3.80, +5.60] | 6 / 0 / 0 | holds |
+| H7 SRS+T - K-statistics, sites (margin -2.0) | +1.04 [+0.36, +1.71] | 3 / 0 / 3 | holds |
+
+Per run, H1 was negative in the three vasopressor runs (-0.23, -0.11, -0.27) and positive in the three AKI runs (+1.58,
++0.74, +0.73); H7 was negative in the vasopressor runs (-1.49, -2.29, -1.80, each interval below zero) and positive in the
+AKI runs (+2.56, +5.38, +3.87). Intervals from the patient bootstrap alone (without the seed variance) lead to the same
+verdicts.
+
+Descriptive (not tested), at the sites: SRS+T 77.7, NMIFS 77.3, K-statistics 76.7, mRMR 76.4 and CMIM 76.4 AUPRC x 100;
+SRS+T led every established selector, by 0.4 (NMIFS) to 5.7 points (stratified mRMR); SRS+T - SRS +0.20 [-0.03, +0.42];
+SRS+T - SRS+T with the likelihood decision +0.72 [+0.23, +1.21]. Models on all window statistics stayed ahead: logistic
+regression by 3.2 points [2.3, 4.1] and gradient-boosted trees by 5.5 [4.8, 6.2]. On the first study's pools SRS+T reached
+73.0, below NMIFS on the extended pools by 4.3 points.

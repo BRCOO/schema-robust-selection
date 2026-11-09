@@ -2,7 +2,7 @@
 
 Code for the paper *Select Once, Deploy Across Schemas: Choosing Temporal Programs from Heterogeneous Generators*
 (PVLDB submission). SRS (schema-robust selection) chooses a registry of K temporal programs (sequential patterns, rules,
-motifs, shapelets) from the union of several generators' candidate pools at a source database, by the estimated deployed
+motifs, shapelets, window-statistic predicates) from the union of several generators' candidate pools at a source database, by the estimated deployed
 value of a frozen logistic probe under schema scenarios; every program carries a chain of surrogate programs, and the
 registry compiles to SQL that runs inside each target database. SRS+T additionally knows the targets' schemas.
 
@@ -23,7 +23,9 @@ from the raw tables.
 | `tests/v2/` | unit tests (`pytest -q tests/v2`) |
 | `launchers/` | the exact launch scripts used for the paper (workstation paths) |
 | `docs/harmonization_spec.md` | feature mappings of the three ICU databases and the evidence behind them |
+| `docs/extended_version.pdf` | the extended version of the paper with its appendix (proofs, experimental details, additional results, both confirmatory studies, compiled SQL), cited by the 12-page submission |
 | `docs/drive_protocol_2026-11-02.md` | the drive domain's protocol (in Chinese): data, comparators, hypotheses H1-H3 and decision rules, written on 2026-11-02 before any selection on drives; its Section 6 (results) was appended after the runs without changing Sections 1-5 |
+| `docs/drive_protocol_2026-11-02_en.md` | an English translation of the drive protocol, made on 2026-11-10 (the Chinese original is authoritative) |
 | `docs/confirmatory_protocol_2026-11-07.md` | the confirmatory study with eICU as the source and eICU hospitals with their own schemas as targets: design, endpoints, hypotheses H1-H5 and decision rule, committed before the study's first run |
 | `docs/confirmatory2_protocol_2026-11-08.md` | the second confirmatory study: the same design on pools with the window-statistic predicates, CV seeds 0-4, statistic-model comparators, hypotheses H1-H7, committed before its first run |
 
@@ -31,8 +33,12 @@ from the raw tables.
 
 Python 3.12 with `pip install -r requirements.txt`; Java 21 and SPMF 2.64b for the SPMF generators (see
 `tools/spmf/README.md`). Set `CUDA_VISIBLE_DEVICES=""` for anything that imports torch. All commands run from the
-repository root. Re-runs reproduce registries exactly under the same BLAS configuration; with multithreaded BLAS, AUPRC can
-differ by up to 5e-4 and a probe's penalty can flip between near-tied values (16-run means move by at most 6e-4).
+repository root. Re-runs reproduce registries exactly under the same BLAS configuration. The reported evaluation ran with
+four BLAS threads per process (`OMP_NUM_THREADS=MKL_NUM_THREADS=OPENBLAS_NUM_THREADS=4`). Under another configuration a probe's
+penalty can flip between near-tied values, and average precision can move because it splits ties between episodes with
+identical coordinates by floating-point noise (single drive targets at K = 5 by up to 1.4 points). With exact ties
+(`scripts/v2/paper_v3/tie_check.py`), the 16-run means change by at most 7e-5, every contrast of SRS+T in the confirmatory
+studies by at most 3e-5, and mean drive target AUPRC at K = 5 by at most 0.005.
 
 ## Reproducing the paper
 
@@ -60,7 +66,8 @@ differ by up to 5e-4 and a probe's penalty can flip between near-tied values (16
    `scripts/v2/run_selection_scalability.py`.
 8. **Drive domain** (pre-specified; protocol in `docs/drive_protocol_2026-11-02.md`): `scripts/v2/run_drive_track.py`.
 9. **Figures and tables**: `scripts/v2/paper_v3/round2.py`, then `figs_motivation.py`, `figs_v5.py` and `tables.py` in
-   `scripts/v2/paper_v3/`.
+   `scripts/v2/paper_v3/`. Post hoc checks of the review: `scripts/v2/paper_v3/drive_srs_vs_srst.py` (SRS+T against SRS on
+   drives, before `tables.py`) and `scripts/v2/paper_v3/tie_check.py icu|confirm|drives`.
 
 Outputs go to `artifacts/v2/` (never committed). Each driver documents its inputs, outputs and options in its module
 docstring.

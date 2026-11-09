@@ -12,8 +12,8 @@ import style as S
 from style import LABEL
 
 RNG = np.random.default_rng(1)
-GEN_COLOR = {"ERMiner": S.TEAL_DARK, "PrefixSpan": "#3FAE9A", "Motif": S.BLUE, "Shapelet": S.SKY, "FMG": S.SAND}
-GEN_ORDER = ["ERMiner", "PrefixSpan", "Motif", "Shapelet", "FMG"]
+GEN_COLOR = {"ERMiner": S.TEAL_DARK, "PrefixSpan": "#3FAE9A", "Motif": S.BLUE, "Shapelet": S.SKY, "FMG": S.SAND, "Statistic": S.GREY}
+GEN_ORDER = ["ERMiner", "PrefixSpan", "Motif", "Shapelet", "FMG", "Statistic"]
 PROXY = {"objective": ("SRS estimate", S.TEAL), "nmifs": ("NMIFS score", S.BLUE), "mrmr": ("mRMR score", S.SKY)}
 TASKS = [("f_mimic_iv_gap1h", "Vaso 1h"), ("f_mimic_iv_gap2h", "Vaso 2h"), ("f_mimic_iv_gap4h", "Vaso 4h"), ("f_mimic_iv_aki_gap6h", "AKI")]
 

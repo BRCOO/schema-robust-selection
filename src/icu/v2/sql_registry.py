@@ -22,6 +22,12 @@ every schema feature has a row), plus the frozen source bin edges ``edges(featur
 
 FMG's legacy rules fire by v1 rule-id matching and are not compiled (:func:`compilable`).
 
+Two dialects. ``"duckdb"`` (the default) is the SQL of the paper's DuckDB results. ``"portable"`` is one text that DuckDB,
+PostgreSQL and SQLite all run (window functions, common table expressions and standard aggregates only): the last observed
+value by ``ROW_NUMBER``, population standard deviation and least-squares slope as two-pass aggregates, the window scale of a
+motif by a framed ``MAX``, ``NOT IN`` instead of ``EXCEPT``, and explicit ``DOUBLE PRECISION`` casts wherever integer
+arithmetic would otherwise truncate. SQLite needs a registered ``SQRT`` (:func:`register_sqlite_functions`).
+
 Window-statistic predicates (``baselines/predicates.py``) compile to one aggregate over the observed rows of their
 feature (MIN, MAX, AVG, STDDEV_POP, the value at the latest observed bin, REGR_SLOPE on the bin index, the share of
 unobserved bins; for status features the share of on bins, the changes between consecutive observed bins and the
@@ -47,6 +53,7 @@ from src.icu.v2.events import (
 )
 from src.icu.v2.types import ProgramRecord
 
+DIALECTS = ("duckdb", "portable")
 SYMBOLIC = ("sequence", "ordered_rule", "unordered_rule")
 NUMERIC = ("motif", "shapelet")
 PREDICATE = ("predicate",)
@@ -86,18 +93,26 @@ def edges_rows(bins: Mapping[str, np.ndarray], max_cuts: int = 3) -> list[tuple]
     return rows
 
 
-def token_sql(max_cuts: int = 3) -> str:
-    """CREATE TABLE tokens(episode_id, t, token) from ``obs`` and ``edges``."""
+def register_sqlite_functions(con) -> None:
+    """SQRT for SQLite connections (Python's sqlite3 is built without SQLite's math functions)."""
+    con.create_function("SQRT", 1, lambda x: None if x is None else math.sqrt(x), deterministic=True)
+
+
+def token_sql(max_cuts: int = 3, dialect: str = "duckdb") -> str:
+    """CREATE TABLE tokens(episode_id, t, token) from ``obs`` and ``edges`` (portable: drop ``tokens`` first)."""
+    assert dialect in DIALECTS, dialect
     level = " + ".join(f"(CASE WHEN e.c{i} IS NOT NULL AND g.value >= e.c{i} THEN 1 ELSE 0 END)" for i in range(1, max_cuts + 1))
     interventions = ", ".join(_q(f) for f in sorted(INTERVENTION_FEATURES))
     observation = ", ".join(_q(f) for f in sorted(OBSERVATION_FEATURES))
     w = OBSERVATION_WINDOW
+    create = "CREATE OR REPLACE TABLE tokens AS" if dialect == "duckdb" else "CREATE TABLE tokens AS"
+    length = f"LEAST(o.t + 1, {w})" if dialect == "duckdb" else f"(CASE WHEN o.t + 1 < {w} THEN o.t + 1 ELSE {w} END)"
     return f"""
-CREATE OR REPLACE TABLE tokens AS
+{create}
 WITH g AS (
     SELECT o.episode_id, o.t, o.feature, o.value, o.value IS NOT NULL AS observed,
            SUM(CASE WHEN o.value IS NOT NULL THEN 1 ELSE 0 END) OVER w6 AS cnt,
-           LEAST(o.t + 1, {w}) AS len,
+           {length} AS len,
            o.t - COALESCE(MAX(CASE WHEN o.value IS NOT NULL THEN o.t END) OVER wpre, -1) AS streak
     FROM obs o
     WINDOW w6 AS (PARTITION BY o.episode_id, o.feature ORDER BY o.t ROWS BETWEEN {w - 1} PRECEDING AND CURRENT ROW),
@@ -143,7 +158,7 @@ lc AS (SELECT episode_id, MIN(t) AS t FROM l GROUP BY episode_id HAVING COUNT(*)
 SELECT fa.episode_id FROM fa JOIN lc ON fa.episode_id = lc.episode_id WHERE fa.t < lc.t"""
 
 
-def _numeric_sql(program: ProgramRecord) -> str:
+def _numeric_sql(program: ProgramRecord, dialect: str = "duckdb") -> str:
     params = program.params
     template = np.asarray(params["template"], dtype=float).reshape(1, -1)
     eps = float(params.get("eps", DEFAULT_EPS))
@@ -162,6 +177,8 @@ def _numeric_sql(program: ProgramRecord) -> str:
     sa2 = "(" + " + ".join(f"{zi} * {zi}" for zi in z) + f") / {m}.0"
     dot = "(" + " + ".join(f"{zi} * {_num(tz[i])}" for i, zi in enumerate(z)) + f") / {m}.0"
     threshold = float(params["threshold"]) + MATCH_ATOL
+    if dialect == "portable":
+        return _numeric_sql_portable(params, lead, xs, mean, centered_sq, sa2, dot, m, st2, eps, threshold)
     close = f"""WITH x AS (SELECT episode_id, t, {lead} FROM obs WHERE feature = {_q(params['feature'])}
             WINDOW w AS (PARTITION BY episode_id ORDER BY t)),
 v AS (SELECT *, {mean} AS mu FROM x WHERE {' AND '.join(f'{v} IS NOT NULL' for v in xs)}),
@@ -175,7 +192,55 @@ WHERE SQRT(CASE WHEN d2 <= {_num(SNAP_REL)} * norms THEN 0.0 ELSE d2 END) <= {_n
     return f"SELECT DISTINCT episode_id FROM obs EXCEPT ({close})"
 
 
-def _predicate_sql(program: ProgramRecord) -> str:
+def _numeric_sql_portable(params, lead, xs, mean, centered_sq, sa2, dot, m, st2, eps, threshold) -> str:
+    """The motif/shapelet query in portable SQL: the window scale max(1, |x_i|) by a framed MAX over the same m rows that
+    LEAD reads (the grid is dense, so the frame holds exactly the window), and NOT IN for dissimilarity programs."""
+    feature = _q(params["feature"])
+    close = f"""WITH x AS (SELECT episode_id, t, {lead}, MAX(ABS(value)) OVER wf AS mx FROM obs WHERE feature = {feature}
+            WINDOW w AS (PARTITION BY episode_id ORDER BY t),
+                   wf AS (PARTITION BY episode_id ORDER BY t ROWS BETWEEN CURRENT ROW AND {m - 1} FOLLOWING)),
+v AS (SELECT x.*, {mean} AS mu FROM x WHERE {' AND '.join(f'{v} IS NOT NULL' for v in xs)}),
+s AS (SELECT v.*, SQRT(({centered_sq}) / {m}.0) AS sd, (CASE WHEN mx > 1.0 THEN mx ELSE 1.0 END) AS sc FROM v),
+d AS (SELECT episode_id, {sa2} AS sa2, {dot} AS dot FROM s WHERE sd > {_num(eps)} * sc),
+r AS (SELECT episode_id, sa2 + {_num(st2)} - 2.0 * dot AS d2, sa2 + {_num(st2)} AS norms FROM d)
+SELECT DISTINCT episode_id FROM r
+WHERE SQRT(CASE WHEN d2 <= {_num(SNAP_REL)} * norms THEN 0.0 ELSE d2 END) <= {_num(threshold)}"""
+    if params.get("direction", "le") == "le":
+        return close
+    return f"SELECT DISTINCT episode_id FROM obs WHERE feature = {feature} AND episode_id NOT IN (SELECT episode_id FROM ({close}) c)"
+
+
+def _predicate_sql_portable(f: str, stat: str, cmp: str, bound: float) -> str:
+    feature = _q(f)
+    on = f"(CASE WHEN value > {_num(INTERVENTION_ON_THRESHOLD)} THEN 1 ELSE 0 END)"
+    observed = f"FROM obs WHERE feature = {feature} AND value IS NOT NULL"
+    if stat == "missing":
+        return (f"SELECT episode_id FROM obs WHERE feature = {feature} GROUP BY episode_id "
+                f"HAVING 1.0 - CAST(COUNT(value) AS DOUBLE PRECISION) / COUNT(*) {cmp} {_num(bound)}")
+    if stat == "transitions":
+        return f"""WITH o AS (SELECT episode_id, t, {on} AS s {observed}),
+l AS (SELECT episode_id, s, LAG(s) OVER (PARTITION BY episode_id ORDER BY t) AS p FROM o)
+SELECT episode_id FROM l GROUP BY episode_id
+HAVING SUM(CASE WHEN p IS NOT NULL AND s <> p THEN 1 ELSE 0 END) {cmp} {_num(bound)}"""
+    if stat == "last":
+        expr = f"CAST({on} AS DOUBLE PRECISION)" if f in INTERVENTION_FEATURES else "value"
+        return f"""WITH o AS (SELECT episode_id, {expr} AS s, ROW_NUMBER() OVER (PARTITION BY episode_id ORDER BY t DESC) AS rn {observed})
+SELECT episode_id FROM o WHERE rn = 1 AND s {cmp} {_num(bound)}"""
+    if stat == "std":
+        return f"""WITH o AS (SELECT episode_id, value {observed}),
+m AS (SELECT episode_id, AVG(value) AS mu FROM o GROUP BY episode_id)
+SELECT o.episode_id FROM o JOIN m ON o.episode_id = m.episode_id GROUP BY o.episode_id
+HAVING SQRT(AVG((o.value - m.mu) * (o.value - m.mu))) {cmp} {_num(bound)}"""
+    if stat == "slope":
+        return f"""WITH o AS (SELECT episode_id, t, value {observed}),
+m AS (SELECT episode_id, AVG(CAST(t AS DOUBLE PRECISION)) AS tm, AVG(value) AS xm FROM o GROUP BY episode_id HAVING COUNT(*) >= 2)
+SELECT o.episode_id FROM o JOIN m ON o.episode_id = m.episode_id GROUP BY o.episode_id
+HAVING SUM((o.t - m.tm) * (o.value - m.xm)) / SUM((o.t - m.tm) * (o.t - m.tm)) {cmp} {_num(bound)}"""
+    expr = {"min": "MIN(value)", "max": "MAX(value)", "mean": "AVG(value)", "onratio": f"AVG(CAST({on} AS DOUBLE PRECISION))"}[stat]
+    return f"SELECT episode_id {observed} GROUP BY episode_id HAVING {expr} {cmp} {_num(bound)}"
+
+
+def _predicate_sql(program: ProgramRecord, dialect: str = "duckdb") -> str:
     from src.icu.v2.baselines.predicates import tolerance
 
     params = program.params
@@ -183,6 +248,8 @@ def _predicate_sql(program: ProgramRecord) -> str:
     threshold = float(params["threshold"])
     bound = threshold - tolerance(threshold) if op == "ge" else threshold + tolerance(threshold)
     cmp = ">=" if op == "ge" else "<="
+    if dialect == "portable":
+        return _predicate_sql_portable(f, stat, cmp, bound)
     on = f"(CASE WHEN value > {_num(INTERVENTION_ON_THRESHOLD)} THEN 1.0 ELSE 0.0 END)"
     if stat == "missing":
         return (f"SELECT episode_id FROM obs WHERE feature = {_q(f)} GROUP BY episode_id "
@@ -201,28 +268,30 @@ HAVING SUM(CASE WHEN p IS NOT NULL AND s <> p THEN 1 ELSE 0 END) {cmp} {_num(bou
             f"HAVING {guard}{expr} IS NOT NULL AND NOT isnan({expr}) AND {expr} {cmp} {_num(bound)}")
 
 
-def program_sql(program: ProgramRecord) -> str:
+def program_sql(program: ProgramRecord, dialect: str = "duckdb") -> str:
     """A query returning the episodes on which ``program`` fires (see the module docstring)."""
+    assert dialect in DIALECTS, dialect
     if not compilable(program):
         raise ValueError(f"{program.program_id}: {program.kind} of {program.method} is not compiled to SQL")
     if program.kind in PREDICATE:
-        return _predicate_sql(program)
+        return _predicate_sql(program, dialect)
     if program.kind in NUMERIC:
-        return _numeric_sql(program)
+        return _numeric_sql(program, dialect)
     if program.kind == "unordered_rule":
         union = lambda sets: frozenset(x for s in sets for x in s)  # noqa: E731
         return _unordered_sql(union(program.elements), union(program.consequent))
     return _ordered_sql(list(program.elements) + list(program.consequent))
 
 
-def fire(con, programs: Sequence[ProgramRecord], schema: AbstractSet[str]) -> dict[str, frozenset[str]]:
-    """Run every executable program on the target's ``obs``/``tokens``; non-executable -> empty."""
+def fire(con, programs: Sequence[ProgramRecord], schema: AbstractSet[str], dialect: str = "duckdb") -> dict[str, frozenset[str]]:
+    """Run every executable program on the target's ``obs``/``tokens``; non-executable -> empty. ``con`` is any connection
+    with ``execute(sql).fetchall()`` (DuckDB, sqlite3, psycopg 3)."""
     out = {}
     for p in programs:
         if not executable(p, schema):
             out[p.program_id] = frozenset()
             continue
-        out[p.program_id] = frozenset(r[0] for r in con.execute(program_sql(p)).fetchall())
+        out[p.program_id] = frozenset(r[0] for r in con.execute(program_sql(p, dialect)).fetchall())
     return out
 
 

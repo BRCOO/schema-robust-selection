@@ -8,3 +8,6 @@ pyarrow>=15
 psutil>=5.9
 torch>=2.5  # CPU build suffices; only the supervised references import it
 pytest>=8
+# optional, for the PostgreSQL runs of run_sql_engines.py and paper_v3/sql_engine_timing.py (a pip-packaged server):
+# pgserver>=0.1.4
+# psycopg[binary]>=3.2

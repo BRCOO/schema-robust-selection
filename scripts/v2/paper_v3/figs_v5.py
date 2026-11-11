@@ -848,42 +848,40 @@ def fig_r4() -> None:
     letter(ax, "c", dx=-0.36)
     src("r4c_cost_quality", frame.drop(columns="color"))
 
-    # (d) SQL and Python engine timings
+    # (d) the registry on four SQL engines and the Python reference engine (fresh-process protocol, sql_engine_timing.py)
     ax = fig.add_axes([0.83, bottom, 0.165, h])
-    rep = pd.DataFrame(_json.loads((S.ART / "sql_execution/timing_repeats_f_mimic_iv_aki_gap6h.json").read_text(encoding="utf-8"))["rows"])
-    mem30 = _json.loads((S.ART / "sql_execution/disk_scale_f_mimic_iv_aki_gap6h_memory.json").read_text(encoding="utf-8"))
-    mem30 = [r for r in mem30 if r["replicate"] == 30]
-    mem30 = mem30[0] if mem30 else None  # in memory at x30 needs about 21 GB; run only when the machine has it
+    rep = pd.DataFrame(_json.loads((S.ART / "sql_engines/timing.json").read_text(encoding="utf-8"))["rows"])
     out, yl = [], []
     y = 0
     engines = [("duckdb_memory", "DuckDB, memory", S.TEAL, "o", True), ("duckdb_disk", "DuckDB, disk", S.TEAL, "o", False),
+               ("postgres", "PostgreSQL", S.TEAL_DARK, "s", True), ("sqlite", "SQLite", S.TEAL_MID, "^", True),
                ("python", "Python engine", S.GREY, "D", True)]
+    offs = np.linspace(-0.32, 0.32, len(engines))
     for r_ in (1, 10, 30):
+        if rep[rep.replicate == r_].empty:
+            continue
         for col, ptext in (("seconds_tokens", "tokens"), ("seconds_registry", "registry")):
-            for off, (eng, etext, color, marker, filled) in zip((-0.24, 0.0, 0.24), engines):
-                d = rep[(rep.engine == eng) & (rep.replicate == r_)][col]
+            for off, (eng, etext, color, marker, filled) in zip(offs, engines):
+                d = rep[(rep.engine == eng) & (rep.replicate == r_)][col].dropna()
                 if d.empty:
-                    if eng == "duckdb_memory" and r_ == 30 and mem30 is not None:
-                        val = mem30[col]
-                        ax.scatter(val, y + off, s=15, marker="o", facecolor=S.TEAL_DARK, edgecolor="white", lw=0.5, zorder=3)
-                        out.append({"replicate": r_, "phase": ptext, "engine": etext + " (one run)", "median_s": val, "q1": val, "q3": val, "n": 1})
                     continue
                 med_, q1, q3 = d.median(), d.quantile(0.25), d.quantile(0.75)
-                ax.hlines(y + off, q1, q3, color=color, lw=1.6)
-                ax.scatter(med_, y + off, s=15, marker=marker, facecolor=color if filled else "white", edgecolor=color, lw=0.9, zorder=3)
+                ax.hlines(y + off, q1, q3, color=color, lw=1.4)
+                ax.scatter(med_, y + off, s=11, marker=marker, facecolor=color if filled else "white", edgecolor=color, lw=0.8, zorder=3)
                 out.append({"replicate": r_, "phase": ptext, "engine": etext, "median_s": med_, "q1": q1, "q3": q3, "n": len(d)})
             yl.append((y, f"×{r_} {ptext}"))
             y += 1
         y += 0.45
-    ax.set_yticks([t[0] for t in yl], [t[1] for t in yl])
+    ax.set_yticks([t_[0] for t_ in yl], [t_[1] for t_ in yl])
     ax.set_ylim(y - 0.25, -0.7)
     ax.set_xscale("log")
-    ax.set_xlim(0.05, 70)
-    ax.set_xticks([0.1, 1, 10], ["0.1", "1", "10"])
+    lo_x, hi_x = min(r["median_s"] for r in out) / 1.7, max(r["q3"] for r in out) * 2.4
+    ax.set_xlim(lo_x, hi_x)
+    ticks = [x for x in (0.1, 1, 10, 100, 1000) if lo_x <= x <= hi_x / 1.5]
+    ax.set_xticks(ticks, [f"{x:g}" for x in ticks])
     ax.minorticks_off()
     ax.set_xlabel("seconds")
-    ax.legend(handles=[Line2D([], [], marker=m, ls="", mfc=c if f else "white", mec=c, label=t) for _, t, c, m, f in engines] +
-              ([Line2D([], [], marker="o", ls="", mfc=S.TEAL_DARK, mec="white", label="memory, one run")] if mem30 is not None else []),
+    ax.legend(handles=[Line2D([], [], marker=m, ls="", mfc=c if f else "white", mec=c, label=t_) for _, t_, c, m, f in engines],
               loc="upper center", bbox_to_anchor=(0.05, -0.22), ncol=2, handletextpad=0.1, columnspacing=0.4, labelspacing=0.2)
     ax.grid(axis="x", which="major")
     title(ax, "Registry as SQL")

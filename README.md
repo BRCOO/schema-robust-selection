@@ -15,7 +15,7 @@ from the raw tables.
 
 | Path | Content |
 |---|---|
-| `src/icu/v2/` | the method and pipeline: extraction adapters (`extract/`), cohorts and splits, candidate generators (`pools.py`, `baselines/`, `fmg_adapter.py`), SRS (`robust_selection.py`), surrogate chains (`surrogates.py`), established selectors (`selection_baselines.py`), evaluation (`bridge.py`, `pipeline.py`, `stats.py`), SQL compilation (`sql_registry.py`) |
+| `src/icu/v2/` | the method and pipeline: extraction adapters (`extract/`), cohorts and splits, candidate generators (`pools.py`, `baselines/`, `fmg_adapter.py`), SRS (`robust_selection.py`), surrogate chains (`surrogates.py`), established selectors (`selection_baselines.py`), evaluation (`bridge.py`, `pipeline.py`, `stats.py`), SQL compilation (`sql_registry.py`: the DuckDB dialect of the paper's results and one portable dialect for DuckDB, PostgreSQL and SQLite), loading into the engines (`sql_engines.py`) and scoring whole models in SQL (`sql_models.py`) |
 | `scripts/v2/` | drivers for every experiment (one script per analysis; each is resumable or rewrites its own output folder) |
 | `scripts/v2/paper_v3/` | the paper's figures (`figs_v5.py`, `figs_motivation.py`), tables (`tables.py`) and summary statistics (`round2.py`) |
 | `scripts/v2/run_joint_bootstrap.py` | the primary statistic: a patient bootstrap applied jointly to all 16 runs, with random effects over the six pools |
@@ -62,12 +62,16 @@ studies by at most 3e-5, and mean drive target AUPRC at K = 5 by at most 0.005.
    `scripts/v2/run_real_targets.py`, `scripts/v2/run_hospital_schemas.py`; decision diagnostics:
    `scripts/v2/run_decision_diagnostics.py`; window-statistic references: `scripts/v2/run_stat_baselines.py`.
 6. **Statistics**: `scripts/v2/run_joint_bootstrap.py --phase dump`, `--phase boot`, `--phase summarize`.
-7. **SQL execution and timing** (idle machine): `scripts/v2/run_sql_execution.py`,
-   `scripts/v2/run_selection_scalability.py`.
+7. **SQL execution and timing** (idle machine): `scripts/v2/run_sql_execution.py` (DuckDB dialect),
+   `scripts/v2/run_sql_engines.py` (the portable dialect in DuckDB, PostgreSQL and SQLite, program by program against the
+   reference engine), `scripts/v2/paper_v3/sql_engine_timing.py prep` then `drive 5 15` (fresh-process timings of the
+   registry and the K-statistics model scored in SQL on four engines), `scripts/v2/run_selection_scalability.py`.
+   PostgreSQL runs as the pip-packaged `pgserver` on 127.0.0.1 with its data directory under `artifacts/` (deleted at exit).
 8. **Drive domain** (pre-specified; protocol in `docs/drive_protocol_2026-11-02.md`): `scripts/v2/run_drive_track.py`.
 9. **Figures and tables**: `scripts/v2/paper_v3/round2.py`, then `figs_motivation.py`, `figs_v5.py` and `tables.py` in
    `scripts/v2/paper_v3/`. Post hoc checks of the review: `scripts/v2/paper_v3/drive_srs_vs_srst.py` (SRS+T against SRS on
-   drives, before `tables.py`) and `scripts/v2/paper_v3/tie_check.py icu|confirm|drives`.
+   drives, before `tables.py`), `scripts/v2/paper_v3/tie_check.py icu|confirm|drives` and
+   `scripts/v2/run_chain_diagnostic.py` (whether a target can see, without labels, that a surrogate shifted).
 
 Outputs go to `artifacts/v2/` (never committed). Each driver documents its inputs, outputs and options in its module
 docstring.

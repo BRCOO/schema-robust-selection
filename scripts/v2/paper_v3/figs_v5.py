@@ -456,7 +456,7 @@ def fig_r3() -> None:
     # (c) fallback rules: SRS+T's AUPRC change against zeroing for the same schema loss on two populations (MIMIC-IV TEST with
     # ventilation records removed; eICU, which records none), per task, mean over the task's runs (CV seed 0)
     dr, _ = data.deploy_all()
-    rules = [("reduced", "re-fit"), ("robust", "dropout probe"), ("surrogate", "surrogates"), ("reduced_surrogate", "re-fit + surr."),
+    rules = [("reduced", "refit"), ("robust", "dropout probe"), ("surrogate", "surrogates"), ("reduced_surrogate", "refit + surr."),
              ("soft", "soft surr.")]
     cols = [("drop_ventilation", "vaso"), ("drop_ventilation", "AKI"), ("eicu", "vaso"), ("eicu", "AKI")]
     sel = dr[(dr.registry == "srs_ap_t") & dr.target.isin(["drop_ventilation", "eicu"])].copy()
@@ -826,11 +826,10 @@ def fig_r4() -> None:
         if row.auprc > best:
             front.append(row)
             best = row.auprc
-    fx, fy = [r.seconds for r in front], [r.auprc for r in front]
-    ax.step(fx + [400], fy + [fy[-1]], where="post", color=S.TEAL_LIGHT, lw=1.0, zorder=1)
+    # no frontier line: time and AUPRC come from two different experiments (review of 2026-11-11)
     for _, row in frame.iterrows():
         ax.scatter(row.seconds, row.auprc, s=18, color=row.color, zorder=3, edgecolor="white", lw=0.4)
-    offsets = {"SRS+T": (0, 5, "center", "bottom"), "SRS+T-lik": (0, -5, "center", "top"), "Wrapper-lik": (-4, 0, "right", "center"),
+    offsets = {"SRS+T": (0, 5, "center", "bottom"), "SRS+T-lik": (0, -5, "center", "top"), "Wrapper-lik": (0, 5, "center", "bottom"),
                "DPP": (0, 5, "center", "bottom"), "MMRFS": (5, 0, "left", "center"), "L1": (5, 0, "left", "center"),
                "CMIM": (5, 0, "left", "center"), "JMI": (5, 0, "left", "center"), "NMIFS": (5, -2, "left", "top"), "mRMR": (5, -2, "left", "top")}
     for _, row in frame.iterrows():
@@ -851,29 +850,25 @@ def fig_r4() -> None:
     # (d) the registry on four SQL engines and the Python reference engine (fresh-process protocol, sql_engine_timing.py)
     ax = fig.add_axes([0.83, bottom, 0.165, h])
     rep = pd.DataFrame(_json.loads((S.ART / "sql_engines/timing.json").read_text(encoding="utf-8"))["rows"])
-    out, yl = [], []
-    y = 0
-    engines = [("duckdb_memory", "DuckDB, memory", S.TEAL, "o", True), ("duckdb_disk", "DuckDB, disk", S.TEAL, "o", False),
-               ("postgres", "PostgreSQL", S.TEAL_DARK, "s", True), ("sqlite", "SQLite", S.TEAL_MID, "^", True),
-               ("python", "Python engine", S.GREY, "D", True)]
-    offs = np.linspace(-0.32, 0.32, len(engines))
-    for r_ in (1, 10, 30):
-        if rep[rep.replicate == r_].empty:
-            continue
-        for col, ptext in (("seconds_tokens", "tokens"), ("seconds_registry", "registry")):
-            for off, (eng, etext, color, marker, filled) in zip(offs, engines):
-                d = rep[(rep.engine == eng) & (rep.replicate == r_)][col].dropna()
-                if d.empty:
-                    continue
-                med_, q1, q3 = d.median(), d.quantile(0.25), d.quantile(0.75)
-                ax.hlines(y + off, q1, q3, color=color, lw=1.4)
-                ax.scatter(med_, y + off, s=11, marker=marker, facecolor=color if filled else "white", edgecolor=color, lw=0.8, zorder=3)
-                out.append({"replicate": r_, "phase": ptext, "engine": etext, "median_s": med_, "q1": q1, "q3": q3, "n": len(d)})
-            yl.append((y, f"×{r_} {ptext}"))
-            y += 1
-        y += 0.45
-    ax.set_yticks([t_[0] for t_ in yl], [t_[1] for t_ in yl])
-    ax.set_ylim(y - 0.25, -0.7)
+    # one engine per row (review of 2026-11-11): the shipped registry's firing; copies by marker fill; tokens in Table 10
+    out = []
+    engines = [("duckdb_memory", "DuckDB, mem."), ("duckdb_disk", "DuckDB, disk"), ("postgres", "PostgreSQL"), ("sqlite", "SQLite"),
+               ("python", "Python")]
+    copies = [(1, S.TEAL, True, "o"), (10, S.TEAL_DARK, False, "o"), (30, S.TEAL_DARK, True, "x")]
+    for y, (eng, etext) in enumerate(engines):
+        for r_, color, filled, marker in copies:
+            d = rep[(rep.engine == eng) & (rep.replicate == r_)]["seconds_registry"].dropna()
+            if d.empty:
+                continue
+            med_, q1, q3 = d.median(), d.quantile(0.25), d.quantile(0.75)
+            ax.hlines(y, q1, q3, color=color, lw=1.4)
+            if marker == "x":
+                ax.scatter(med_, y, s=16, marker="x", color=color, lw=1.0, zorder=3)
+            else:
+                ax.scatter(med_, y, s=14, marker=marker, facecolor=color if filled else "white", edgecolor=color, lw=0.9, zorder=3)
+            out.append({"replicate": r_, "phase": "registry", "engine": etext, "median_s": med_, "q1": q1, "q3": q3, "n": len(d)})
+    ax.set_yticks(range(len(engines)), [e for _, e in engines])
+    ax.set_ylim(len(engines) - 0.5, -0.6)
     ax.set_xscale("log")
     lo_x, hi_x = min(r["median_s"] for r in out) / 1.7, max(r["q3"] for r in out) * 2.4
     ax.set_xlim(lo_x, hi_x)
@@ -881,8 +876,8 @@ def fig_r4() -> None:
     ax.set_xticks(ticks, [f"{x:g}" for x in ticks])
     ax.minorticks_off()
     ax.set_xlabel("seconds")
-    ax.legend(handles=[Line2D([], [], marker=m, ls="", mfc=c if f else "white", mec=c, label=t_) for _, t_, c, m, f in engines],
-              loc="upper center", bbox_to_anchor=(0.05, -0.22), ncol=2, handletextpad=0.1, columnspacing=0.4, labelspacing=0.2)
+    ax.legend(handles=[Line2D([], [], marker=m, ls="", color=c, mfc=(c if f else "white"), mec=c, label=f"\u00d7{r_}") for r_, c, f, m in copies],
+              loc="upper center", bbox_to_anchor=(0.2, -0.22), ncol=3, handletextpad=0.1, columnspacing=0.6, labelspacing=0.2)
     ax.grid(axis="x", which="major")
     title(ax, "Registry as SQL")
     letter(ax, "d", dx=-0.62)

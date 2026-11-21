@@ -1,6 +1,6 @@
 # SRS: Selecting Temporal Programs that Survive Schema Shift
 
-Code for the paper *Select Once, Deploy Across Schemas: Choosing Temporal Programs from Heterogeneous Generators*
+Code for the paper *Select Once, Deploy Across Schemas: Choosing Portable Registries of Temporal Queries*
 (PVLDB submission). SRS (schema-robust selection) chooses a registry of K temporal programs (sequential patterns, rules,
 motifs, shapelets, window-statistic predicates) from the union of several generators' candidate pools at a source database, by the estimated deployed
 value of a frozen logistic probe under schema scenarios; every program carries a chain of surrogate programs, and the

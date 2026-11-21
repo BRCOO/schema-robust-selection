@@ -46,7 +46,8 @@ def fig_c1() -> None:
     y = np.arange(len(TGT))
     ax.barh(y, share.values, color=S.WARM, height=0.64)
     for k, v in enumerate(share.values):
-        ax.text(v + 0.03, k, f"{100 * v:.0f}%", va="center", fontsize=FS, color=S.INK2)
+        # round half up: the eICU mean share is 0.175, stored as 0.17499999... after averaging (review 2026-11-11)
+        ax.text(v + 0.03, k, f"{int(np.floor(100 * v + 0.5 + 1e-9))}%", va="center", fontsize=FS, color=S.INK2)
     ax.set_yticks(y, [data.TARGET_LABEL[t] for t in TGT])
     ax.set_ylim(len(TGT) - 0.5, -0.6)
     ax.set_xlim(0, 1.25)
@@ -59,10 +60,12 @@ def fig_c1() -> None:
     CTRL = [t for t in TGT if t.startswith("drop") or t == "vitals_only"]
     ax.axvline(internal, color=S.TEAL_DARK, lw=0.8, ls=(0, (2, 2)))
     x_lo = float(np.floor(20 * (zero[CTRL].min() - 0.02)) / 20)
-    ax.text(internal - 0.005, 0.2, f"source\n{internal:.3f}", fontsize=FS, color=S.TEAL_DARK, ha="right", va="center")
+    ax.text(internal - 0.004, len(TGT) - 0.62, f"source {internal:.3f}", fontsize=FS, color=S.TEAL_DARK, ha="right", va="center")
     for k, t in enumerate(TGT):
-        if t not in CTRL:
+        if t not in CTRL:  # other patients: values without a line to the source's value
             ax.text(x_lo + 0.005, k, "other patients", fontsize=FS, color=S.GREY, style="italic", va="center", ha="left")
+            ax.scatter(zero[t], k - 0.16, s=15, color=S.WARM, zorder=3)
+            ax.scatter(sur[t], k + 0.16, s=15, marker="D", facecolor="white", edgecolor=S.TEAL, lw=0.8, zorder=4)
             continue
         ax.plot([zero[t], internal], [k, k], color=S.GREY_PALE, lw=2.2, solid_capstyle="round", zorder=1)
         ax.scatter(zero[t], k - 0.16, s=15, color=S.WARM, zorder=3, label="zeroed" if t == CTRL[0] else None)
@@ -72,7 +75,7 @@ def fig_c1() -> None:
     ax.set_ylim(len(TGT) - 0.5, -0.6)
     ax.set_xlim(x_lo, internal + 0.012)
     ax.set_xticks([t for t in (0.6, 0.7, 0.8) if x_lo <= t <= internal])
-    ax.set_xlabel("AUPRC, same TEST patients")
+    ax.set_xlabel("AUPRC")
     ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.28), ncol=2, handletextpad=0.1, borderpad=0.2, columnspacing=0.8)
     ax.grid(axis="x")
     title(ax, "Silent loss")

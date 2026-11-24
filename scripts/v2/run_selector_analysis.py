@@ -15,7 +15,7 @@ Loads the pools pickled by ``run_discovery_comparison.py --save-pools`` and runs
 * ``stability``  selection stability under patient-level subsampling of TRAIN
 * ``registry``   the selected programs (native and v2, K = 10) with readable descriptions
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_selector_analysis.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_selector_analysis.py \\
       --pools artifacts/v2/comparison/x_main/pools.pkl --out-dir artifacts/v2/selector_analysis/x_main \\
       --selector-targets eicu,hirid
 """

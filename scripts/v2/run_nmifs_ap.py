@@ -7,7 +7,7 @@ conditional score. It isolates the screening by estimated deployed value from th
 Writes artifacts/v2/nmifs_ap/<root>/<label>/{registries.json, select.json, rows.csv, paired.csv}; paired = SRS+T vs
 NMIFS+AP and NMIFS+AP vs NMIFS (internal and mean target, patient/drive-clustered paired bootstrap, 1,000 replicates).
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_nmifs_ap.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_nmifs_ap.py
 """
 from __future__ import annotations
 

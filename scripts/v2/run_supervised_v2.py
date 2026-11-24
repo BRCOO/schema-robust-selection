@@ -50,13 +50,13 @@ Outputs (in --out-dir)
                                       (with --external also external metrics/probabilities)
 
 CPU only, and only when the machine is free:
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python \\
       scripts/v2/run_supervised_v2.py --episodes <episodes.json> \\
       --data-dir data/processed/mimic-iv-full-cw3-gap0-real/mimic-iv \\
       --task-spec <task_spec.json> --out-dir artifacts/v2/supervised/<run>
 
 Frozen transfer to external cohorts (stored v2 extraction windows):
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python \\
       scripts/v2/run_supervised_v2.py \\
       --episodes artifacts/v2/task/x_mimic_iv_gap1h/episodes_split.json \\
       --data-dir data/processed/v2/extract/mimic_iv_gap1h_r2 --window stored --exclude-features '' \\

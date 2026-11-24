@@ -1,7 +1,7 @@
 """Supervised references at the source TEST split and at the real targets (paper v3, RQ1 reference block): AUPRC of the
 supervised models of artifacts/v2/supervised (trained on full windows of MIMIC-IV TRAIN), mean over their seeds.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/supervised_refs.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/supervised_refs.py
 """
 from pathlib import Path
 

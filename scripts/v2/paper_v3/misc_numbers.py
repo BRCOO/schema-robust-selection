@@ -2,7 +2,7 @@
 runs where SRS equals Wrapper, AUPRC; ablation tallies per target; the portability residual (target difference regressed
 on internal difference); writes paper/v3_assets/source_data/misc_*.csv.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/misc_numbers.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/misc_numbers.py
 """
 import glob
 import json

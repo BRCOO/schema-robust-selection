@@ -11,7 +11,7 @@ Token glossary (``events.py``): ``f:q<l>`` observed value in global TRAIN quanti
 (q0 lowest); ``f:on`` intervention active in the bin; ``f:missing`` not measured;
 ``f:sparse_measurement`` trailing window only sparsely measured.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/export_case_study.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/export_case_study.py \\
       --e3-dir artifacts/v2/union/f_mimic_iv_gap1h --out-dir artifacts/v2/case_study/gap1h_k10
 """
 

@@ -3,7 +3,7 @@ independent pools, random-loss win/tie/loss with mean differences, lift retentio
 shortlist recall, re-splits with NMIFS+AP and the ablations, compilable-only registries, wrapper decomposition and seed-aware
 summaries. Reads artifacts/v2 only; writes paper/v3_assets/source_data/q2_*.csv and prints the numbers the text quotes.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/round2.py [part ...]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/round2.py [part ...]
 """
 from __future__ import annotations
 

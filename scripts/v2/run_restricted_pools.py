@@ -13,7 +13,7 @@ Selection is TRAIN-only as everywhere: SRS+T-AP and SRS-AP (q on VAL), mRMR, NMI
 VAL), L1 and L1 + schema dropout (q on VAL). Every registry is deployed with surrogates chosen in
 the restricted pool; paired patient-clustered bootstrap of SRS+T-AP against each.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_restricted_pools.py --restrict care
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_restricted_pools.py --restrict care
 """
 
 from __future__ import annotations

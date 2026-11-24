@@ -1,7 +1,7 @@
 """Challenge figures of the PVLDB v3 paper (Section 1: one figure per challenge). Single-column figures, every text element
 at 7 pt or more, Nature teal-green family, source data in paper/v3_assets/source_data/.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/figs_motivation.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/figs_motivation.py
 """
 from __future__ import annotations
 

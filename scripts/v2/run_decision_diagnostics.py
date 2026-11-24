@@ -7,7 +7,7 @@
 * ``--phase shortlist``: SRS+T with shortlists m = 5 and m = 20 (dropout rate chosen on VAL as in run_union_ap.py) at K = 10 on
   the four standard settings; internal TEST and every target, deployed with surrogate chains.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_decision_diagnostics.py --phase trace
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_decision_diagnostics.py --phase trace
 """
 from __future__ import annotations
 

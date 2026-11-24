@@ -3,7 +3,7 @@
 only) against NMIFS+AP, and SRS+T against SRS, on the 16 ICU runs and the drive runs. Registries are read, never
 re-selected; deployment and bootstrap as in run_union_ap.py --phase evaluate.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_paired_extra.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_paired_extra.py
 """
 from __future__ import annotations
 

@@ -288,7 +288,7 @@ HiRID 的取值常量：
 公共前缀（每条命令都先执行）：
 
 ```bash
-cd "/d/ALL PROJECT/Non-stationary times series"
+cd "<repository root>"
 mkdir -p artifacts/v2/harmonization
 ```
 
@@ -297,7 +297,7 @@ mkdir -p artifacts/v2/harmonization
 **R-E1 化验名称**（`lab.csv.gz`，517 MB）。目的：列出实际的 labname 和单位，核实排除名单的确切拼写。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import collections, sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -321,7 +321,7 @@ EOF
 **R-E2 输液药名**（`infusionDrug.csv.gz`，49 MB）。目的：对照 v1 和 v2 的分类，统计停药行和缺失速率，确定沿用时长。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -350,7 +350,7 @@ EOF
 **R-E3 出入量路径**（`intakeOutput.csv.gz`，229 MB）。目的：核实尿量标签，并量化 v1 用 `outputTotal` 造成的偏差。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import collections, sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -385,7 +385,7 @@ EOF
 **R-E4 呼吸记录**（`respiratoryCharting.csv.gz`，198 MB）。目的：确认类别名和标签，统计 v1 关键词规则多抓了多少，确认 `RT Vent On/Off` 的取值。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import collections, sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -408,7 +408,7 @@ EOF
 **R-E5 通气起止**（`respiratoryCare.csv.gz`，9 MB）：
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import pandas as pd
 rc = pd.read_csv("data/raw/EICU 2.0数据/respiratoryCare.csv.gz", usecols=["patientunitstayid", "ventstartoffset", "ventendoffset", "airwaytype"])
 print("stays:", rc["patientunitstayid"].nunique(),
@@ -427,7 +427,7 @@ R-E4 和 R-E5 的通过标准：
 **R-E6 病人 ID**（`patient.csv.gz`，10 MB）：
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import pandas as pd
 p = pd.read_csv("data/raw/EICU 2.0数据/patient.csv.gz", usecols=["patientunitstayid", "uniquepid"], dtype={"uniquepid": str})
 per = p.groupby("uniquepid")["patientunitstayid"].nunique()
@@ -438,7 +438,7 @@ EOF
 **R-E7 血压来源和体温覆盖**（`vitalPeriodic.csv.gz` 1.8 GB，`vitalAperiodic.csv.gz` 240 MB，较重）：
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import pandas as pd
 inv, temp, nibp = [], [], []
 for chunk in pd.read_csv("data/raw/EICU 2.0数据/vitalPeriodic.csv.gz", usecols=["patientunitstayid", "observationoffset", "systemicmean", "temperature"], chunksize=5_000_000):
@@ -463,7 +463,7 @@ EOF
 **R-M1 尿量条目**（`outputevents.csv.gz`，49 MB）。目的：确认 N1。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -484,7 +484,7 @@ EOF
 **R-M2 输液条目**（`inputevents.csv.gz`，401 MB）。目的：确定 229617、229630–229632、229420、225942 的去留，统计 v1 当成「在用药」的推注行。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import collections, sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -504,7 +504,7 @@ EOF
 **R-M3 化验条目和单位**（`labevents.csv.gz`，2.6 GB，较重）。目的：核对纳入条目的 `valueuom`，确定 11 个 pending 条目的去留。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import collections, sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -523,7 +523,7 @@ EOF
 **R-M4 血压来源和通气取值**（`chartevents.csv.gz`，3.5 GB，最重，放最后）。目的：检验第 3 节的假设，并核对通气模式名单。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import collections
 import pandas as pd
 BP_INV = {220050, 220051, 220052, 225309, 225310, 225312}
@@ -562,7 +562,7 @@ EOF
 - 完整数据需要先把 `raw_stage/*.tar.gz` 解压到一个新目录：observation 6.6 GB，pharma 0.5 GB。
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import collections, glob, sys
 sys.path.insert(0, ".")
 import pandas as pd
@@ -596,7 +596,7 @@ EOF
 **R-H2 数值尺度**（只读 20 个分片）：
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python - <<'EOF'
+PYTHONDONTWRITEBYTECODE=1 python - <<'EOF'
 import glob
 import pandas as pd
 import pyarrow.parquet as pq
@@ -682,7 +682,7 @@ feature_summary(source: str) -> pd.DataFrame
 ## 10. 测试
 
 ```
-PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python -m pytest -p no:cacheprovider -q tests/v2/test_harmonization.py
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider -q tests/v2/test_harmonization.py
 29 passed
 ```
 

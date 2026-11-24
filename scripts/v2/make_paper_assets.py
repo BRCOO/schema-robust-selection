@@ -5,7 +5,7 @@ Every asset is derived from files under artifacts/v2/ and data/processed/v2/extr
 source of each asset is written to paper/v2_assets/SOURCES.md. Missing inputs are skipped
 with a note, so the script can be re-run as experiments finish.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/make_paper_assets.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/make_paper_assets.py
 """
 
 from __future__ import annotations

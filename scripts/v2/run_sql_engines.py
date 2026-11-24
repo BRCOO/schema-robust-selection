@@ -8,7 +8,7 @@ sets must equal the reference engine's (``pools.pkl``). Also timed: loading, ind
 PostgreSQL is the pip-packaged server of ``pgserver`` (in ``--pg-site``), listening on 127.0.0.1 only, with its data
 directory under artifacts/ (deleted at exit).
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_sql_engines.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_sql_engines.py \\
       [--runs union:f_mimic_iv_gap1h] [--engines duckdb_portable,postgres,sqlite]
 """
 from __future__ import annotations

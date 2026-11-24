@@ -3,7 +3,7 @@ number is computed from artifacts/v2 (SRS-AP results after the exact-tie fix; ex
 reference registries, seed replicates and extra pairs of 2026-11-05); the CSV twin of each table is written for the
 source-data map.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/tables.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/tables.py
 """
 from __future__ import annotations
 

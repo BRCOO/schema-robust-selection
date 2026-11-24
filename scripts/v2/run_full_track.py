@@ -11,8 +11,8 @@ with --task aki_onset the AKI cohorts <src>_aki_gap<g>h_full and output tags aki
   compare    discovery comparison (5 methods x native/v2, real + controlled targets), pools saved
   supervised supervised references (internal test + frozen external evaluation if supported)
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_full_track.py --gap 1
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_full_track.py --gap 6 --task aki_onset
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_full_track.py --gap 1
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_full_track.py --gap 6 --task aki_onset
 """
 
 from __future__ import annotations

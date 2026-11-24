@@ -13,8 +13,8 @@ Outputs: ``artifacts/v2/task/r<seed>_mimic_iv_<tag>/``, ``artifacts/v2/compariso
 ``artifacts/v2/union_resplit/r<seed>_mimic_iv_<tag>/``, ``artifacts/v2/union_resplit_extra/r<seed>_mimic_iv_<tag>/``;
 logs in ``artifacts/v2/logs/resplit_r<seed>_<tag>.log``.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_resplit_union.py --tag gap1h --seeds 1,2,3,4,5
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_resplit_union.py --tag aki_gap6h --seeds 1,2,3,4,5
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_resplit_union.py --tag gap1h --seeds 1,2,3,4,5
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_resplit_union.py --tag aki_gap6h --seeds 1,2,3,4,5
 """
 
 from __future__ import annotations

@@ -3,7 +3,7 @@ selection on a union pool, every remaining candidate's mRMR score, NMIFS score, 
 CV log-likelihood) and its held-out truth (gain in VALIDATION AUPRC). Same definitions as
 scripts/v2/analyze_selection_proxies_heldout.py, which reports only the correlations.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/dump_proxy_candidates.py gap1h
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/dump_proxy_candidates.py gap1h
 """
 import math
 import pickle

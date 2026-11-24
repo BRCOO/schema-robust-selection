@@ -14,7 +14,7 @@ in the paper (``pooled_schema``). AUPRC and log-loss over all eICU episodes and 
 of hospitals whose schema lacks a feature of the pooled one (``affected``). Paired
 patient-clustered bootstrap of SRS+T and SRS against the other registries.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_hospital_schemas.py [--runs union:f_mimic_iv_gap1h,...]
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_hospital_schemas.py [--runs union:f_mimic_iv_gap1h,...]
 """
 
 from __future__ import annotations

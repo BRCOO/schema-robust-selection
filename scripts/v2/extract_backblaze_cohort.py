@@ -8,7 +8,7 @@ TRAIN/VAL/TEST split of the source manufacturer (``<task-root>/f_backblaze_<sour
 and the external episode lists of the other manufacturers (``.../episodes_all.json``). Pass 1 (the
 drive scan) is cached in ``--cache``.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/extract_backblaze_cohort.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/extract_backblaze_cohort.py \\
       --zips "data/raw/backblaze/data_Q*_2024.zip"
 """
 

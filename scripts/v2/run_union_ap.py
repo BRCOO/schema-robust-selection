@@ -13,7 +13,7 @@ Three phases, run in order:
   deployed with surrogates; paired patient-clustered bootstrap of SRS+T-AP and SRS-AP against
   every saved registry (E3, add-on, fairness re-runs incl. NMIFS) and against the original SRS.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_union_ap.py --phase select
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_union_ap.py --phase select
 """
 
 from __future__ import annotations

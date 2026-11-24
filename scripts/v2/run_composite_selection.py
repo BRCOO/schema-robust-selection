@@ -17,7 +17,7 @@ validation); composites change only how a target computes the coordinates. Paire
 patient-clustered bootstrap of the mean target AUPRC: every registry composite vs plain,
 SRS-C vs every other composite and plain registry.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_composite_selection.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_composite_selection.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl \\
       --e1-registries artifacts/v2/selection_baselines/f_mimic_iv_gap1h/registries.json \\
       --out-dir artifacts/v2/composite/f_mimic_iv_gap1h

@@ -4,7 +4,7 @@ multi-panel figure each, every panel a different chart type, text at 6-7.5 pt.
 Workflow of the cs-experiment-figure-studio skill: a figure contract in each docstring, source data of every panel in
 paper/v3_assets/source_data/ (prefix r1..r6), PDF/SVG/PNG exports, Nature teal-green palette (style.py).
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/figs_v4.py [r1 ... r6]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/figs_v4.py [r1 ... r6]
 """
 from __future__ import annotations
 

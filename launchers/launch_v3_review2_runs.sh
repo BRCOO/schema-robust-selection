@@ -1,8 +1,8 @@
 #!/bin/bash
 # Second review round (2026-11-05): compute queue. Sequential; every step is resumable.
-cd "/d/ALL PROJECT/Non-stationary times series"
+cd "$(dirname "$0")/.."
 export CUDA_VISIBLE_DEVICES="" PYTHONIOENCODING=utf-8 PYTHONDONTWRITEBYTECODE=1
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 L=artifacts/v2/logs
 $PY scripts/v2/run_reference_registries.py --phase compilable --root union_k20 > $L/v3r2_compilable.log 2>&1
 RS=""

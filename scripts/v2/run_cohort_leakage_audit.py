@@ -8,7 +8,7 @@ cross-validation. Writes cohort_leakage_audit.json and exits with status 2 when 
 single feature reaches the separability threshold, so a pipeline can stop there.
 
 Only when the machine is free:
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_cohort_leakage_audit.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_cohort_leakage_audit.py \\
       --episodes artifacts/v2/task/mimic_iv_gap1/episodes_split.json \\
       --episode-dir data/processed/v2/mimic-iv-gap1 \\
       --out-json artifacts/v2/leakage_audit/mimic_iv_gap1_audit.json

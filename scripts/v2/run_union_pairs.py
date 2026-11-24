@@ -5,7 +5,7 @@ Every named registry is rebuilt (primaries + surrogates), its frozen probe is fi
 A - B is bootstrapped (patient-clustered, paired): internal test AUPRC, and mean target AUPRC
 with both registries deployed with surrogates (joint replicates over the targets).
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_union_pairs.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_union_pairs.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl --e3-dir artifacts/v2/union/f_mimic_iv_gap1h \\
       --a fs_cv --b mrmr --b mmrfs --b l1_logistic --out artifacts/v2/union_pairs/f_mimic_iv_gap1h_fs_cv.csv
 """

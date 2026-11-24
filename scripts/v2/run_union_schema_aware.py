@@ -19,7 +19,7 @@ target AUPRC with surrogates (filtered registries are executable on t anyway); s
 test) AUPRC. Paired patient-clustered bootstrap of ``srs_c_aware`` against every other
 registry on t's episodes.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_union_schema_aware.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_union_schema_aware.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl --e3-dir artifacts/v2/union/f_mimic_iv_gap1h \\
       --out-dir artifacts/v2/union_schema_aware/f_mimic_iv_gap1h
 """

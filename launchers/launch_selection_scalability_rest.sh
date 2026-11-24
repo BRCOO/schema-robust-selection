@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # After pass 1 (pool sizes <= 20k), the remaining selection-scalability passes, one after another.
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 S=scripts/v2/run_selection_scalability.py
 L=artifacts/v2/selection_scalability
 while [ ! -f $L/README.md ]; do sleep 60; done  # pass 1 writes README.md when it ends

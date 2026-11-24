@@ -7,7 +7,7 @@ targets fire on internal TEST, as in run_discovery_comparison.add_schema_shift_t
 to the original with the new pool appended. The other generators are not re-mined. The pool cap is the SPMF
 generators' (``methods.prefixspan.pool_cap``: 200 for the standard pools, 1,000 for the large ones).
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/add_statistic_predicates.py --comparison artifacts/v2/comparison/f_mimic_iv_gap1h
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/add_statistic_predicates.py --comparison artifacts/v2/comparison/f_mimic_iv_gap1h
 """
 from __future__ import annotations
 

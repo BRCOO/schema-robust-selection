@@ -2,9 +2,9 @@
 # Idle-machine timings for the paper (2026-11-04): SRS-AP selection time against the pool size (srs_ap_v, sizes
 # 500-20,000, K = 10, P-cores, 6 BLAS threads), then the SQL scale-up (eICU x1/x10/x30, shipped SRS+T-AP registry).
 # A load logger records system CPU use once a minute (artifacts/v2/logs/timing_load_2026-11-04.csv).
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 L=artifacts/v2/logs
 STOP=$L/timing_load.stop
 rm -f $STOP

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Phase 1 of the statistic-predicate extension (exploratory, K = 10, the four standard settings): E3 union selection,
 # SRS with the AUPRC decision, NMIFS / stratified mRMR / IG selectors, add-on comparators. Two workers in parallel.
-cd "/d/ALL PROJECT/Non-stationary times series"
+cd "$(dirname "$0")/.."
 export CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 run_one() {
   label=$1
   log=artifacts/v2/logs/union_stat_${label}.log

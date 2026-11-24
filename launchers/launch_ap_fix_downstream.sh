@@ -3,9 +3,9 @@
 # artifacts/v2/union_ap_fix (SRS_AP_ROOT). Waits for the main selections; copies the outputs of unchanged runs
 # (tmp/v2_helpers/ap_fix_changed.py) and re-runs the changed ones; stress is re-run for all 16 runs (13 s each).
 # Then waits for the re-split selections and evaluates the changed re-splits; finally re-exports the case studies.
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 SRS_AP_ROOT=union_ap_fix OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 FIX=artifacts/v2/union_ap_fix
 L=artifacts/v2/logs
 while [ ! -f $FIX/drive_k20/f_backblaze_seagate_gap2d/select.json ]; do sleep 60; done

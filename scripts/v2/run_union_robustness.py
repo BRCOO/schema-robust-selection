@@ -14,7 +14,7 @@ cohorts (demographics from the raw tables through ``run_subgroup_analysis.load_d
 frozen logistic probe with surrogates: AUPRC per subgroup with patient-clustered bootstrap CIs, and
 the paired bootstrap of SRS-C-V minus mRMR inside every subgroup.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_union_robustness.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_union_robustness.py \\
       --e3-dir artifacts/v2/union/f_mimic_iv_gap1h --extra-dir artifacts/v2/union_extra/union/f_mimic_iv_gap1h \\
       --out-dir artifacts/v2/union_robustness/f_mimic_iv_gap1h
 """

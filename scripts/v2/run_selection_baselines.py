@@ -17,7 +17,7 @@ real and controlled targets, patient-clustered bootstrap), and every non-referen
 gets a paired patient-clustered bootstrap of test AUPRC against ``v2_tuned`` and ``native``.
 All baselines see the same de-duplicated candidate list as ``native`` top-K.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_selection_baselines.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_selection_baselines.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl \\
       --selector-analysis-dir artifacts/v2/selector_analysis/f_mimic_iv_gap1h \\
       --out-dir artifacts/v2/selection_baselines/f_mimic_iv_gap1h --selector-targets eicu,hirid

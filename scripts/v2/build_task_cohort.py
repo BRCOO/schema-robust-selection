@@ -11,7 +11,7 @@ Streams the v1 episode index, applies a TaskSpec, splits whole patients, and wri
   preregistration.json  frozen settings + content hash; commit it before running models
 
 Only when the machine is free (it reads the 560 MB index once, streaming):
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/build_task_cohort.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/build_task_cohort.py \\
       --index data/processed/mimic-iv-full-cw3-gap0-real/mimic-iv/shock_episode_index.json \\
       --task-spec <task_spec.json> --max-episodes-per-patient 10 \\
       --out-dir artifacts/v2/task/mimic_iv

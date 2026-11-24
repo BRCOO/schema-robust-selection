@@ -8,7 +8,7 @@ for the difference of the 16-run means (six minus five) per registry and endpoin
 
 Writes artifacts/v2/pool_extension/{boot.npz, summary.csv, per_run.csv} and paper/v3_assets/source_data/q6_pool_extension.csv.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_pool_extension.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_pool_extension.py
 """
 from __future__ import annotations
 

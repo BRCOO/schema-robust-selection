@@ -8,7 +8,7 @@ mathematically tied scores tie exactly (the paper's definition: tied scores as o
 * ``confirm``: the dumps of both confirmatory studies, artifacts/v2/eicu_source{,2}/dump/*/*.npz (every contrast of SRS+T);
 * ``drives``: every drive registry redeployed as in run_union_ap.py; run with four BLAS threads to reproduce the evaluation.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/tie_check.py icu|confirm|drives
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/tie_check.py icu|confirm|drives
 
 Writes paper/v3_assets/source_data/q7_tie_check{,_confirm,_drives}.csv.
 """

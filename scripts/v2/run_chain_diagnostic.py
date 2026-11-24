@@ -14,7 +14,7 @@ ship with the registry and the target's own unlabeled firings:
 * ``chain_shift``: the same over the other executable members of p's chain, the substitutes that should agree with b;
 * ``base_cofire_shift``: cofire_shift of the coordinates that run as selected, the target's general shift.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_chain_diagnostic.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_chain_diagnostic.py
 
 Output: artifacts/v2/chain_diagnostic/coordinates.csv (one row per substituted coordinate) and registries.csv.
 """

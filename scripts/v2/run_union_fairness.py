@@ -10,7 +10,7 @@ Section 6.5: NMIFS (redundancy normalized by entropy, i.e. by firing rate) and g
 mRMR (redundancy judged only within one language). Every registry is deployed with surrogates;
 paired patient-clustered bootstrap of SRS+T (``srs_c_val``) and SRS (``srs_c_unknown_val``) against each.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_union_fairness.py [--runs ...]
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_union_fairness.py [--runs ...]
 """
 
 from __future__ import annotations

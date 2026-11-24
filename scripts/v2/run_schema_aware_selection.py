@@ -37,7 +37,7 @@ non-executable coordinates zeroed (no repair, no refit). Target AUPRC with a
 patient-clustered bootstrap CI; paired bootstrap of ``v2_aware`` against ``filter_topk`` and
 ``native`` on the target episodes.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_schema_aware_selection.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_schema_aware_selection.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl \\
       --selector-analysis-dir artifacts/v2/selector_analysis/f_mimic_iv_gap1h \\
       --out-dir artifacts/v2/schema_aware/f_mimic_iv_gap1h --agnostic-targets eicu,hirid

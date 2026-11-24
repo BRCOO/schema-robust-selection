@@ -9,7 +9,7 @@ the train-only setting come from the data split, not from the glue code.
 
 Loads the 55 MB summary and streams the 280 MB inputs (about 1.5-3 GB RAM). Only when the
 machine is free:
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/check_fmg_v1_reproduction.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/check_fmg_v1_reproduction.py
 """
 
 from __future__ import annotations

@@ -4,7 +4,7 @@ the twelve established selectors, SRS+T, SRS, the likelihood-decision SRS+T, the
 fs_cv; AUPRC: srs_ap_unaware from union_ap/ablations.json) and the hybrid NMIFS+AP (artifacts/v2/nmifs_ap).
 Deployed with surrogate chains exactly as in run_union_ap.py. Output: artifacts/v2/extra_metrics/<root>/<label>/rows_all.csv.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_auroc_all.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_auroc_all.py
 """
 from __future__ import annotations
 

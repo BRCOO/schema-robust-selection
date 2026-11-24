@@ -2,7 +2,7 @@
 scripts/v2/summarize_significance.py: two-sided percentile p-values from each paired bootstrap, Holm within one run's tests of
 one reference (all opponents, both metrics), Benjamini-Hochberg over all tests of one reference; alpha = 0.05.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/significance_ap.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/significance_ap.py
 """
 import importlib.util
 import sys

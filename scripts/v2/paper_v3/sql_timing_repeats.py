@@ -4,7 +4,7 @@ episodes (review of the v3 experiments, 2026-11-05, item M10). The eICU AKI coho
 connection; ``--repeats`` runs per configuration (median and IQR reported). The Python engine eventizes the episodes and fires
 the resolved programs with the code that built the pools (src/icu/v2/events.py, patterns.py, numeric_firing.py).
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/sql_timing_repeats.py [--repeats 5] [--scales 1,10,30]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/sql_timing_repeats.py [--repeats 5] [--scales 1,10,30]
 """
 import argparse
 import importlib.util

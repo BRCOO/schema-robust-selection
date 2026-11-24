@@ -1,7 +1,7 @@
 """Driver of the second timing protocol (review item M10): every measurement in a fresh process, configurations interleaved
 in a random order per round, a pause between runs; writes artifacts/v2/sql_execution/timing_repeats_f_mimic_iv_aki_gap6h.json.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/sql_timing_driver.py [rounds] [pause_s]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/sql_timing_driver.py [rounds] [pause_s]
 """
 import json
 import os

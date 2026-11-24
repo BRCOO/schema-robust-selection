@@ -2,7 +2,7 @@
 replicated x1, x10, x30 as in run_sql_execution.py, but the database lives in a file with a memory limit, so DuckDB
 can spill instead of exhausting RAM. Times the event-token derivation and the shipped SRS+T registry; records peak RSS.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/sql_disk_scale.py <label> <memory|disk> [scales]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/sql_disk_scale.py <label> <memory|disk> [scales]
 """
 import importlib.util
 import json

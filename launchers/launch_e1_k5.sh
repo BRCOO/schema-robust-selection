@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=""
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 for g in 1 2 4; do
   $PY scripts/v2/run_selection_baselines.py --pools artifacts/v2/comparison/f_mimic_iv_gap${g}h/pools.pkl \
     --selector-analysis-dir artifacts/v2/selector_analysis/f_mimic_iv_gap${g}h --out-dir artifacts/v2/selection_baselines_k5/f_mimic_iv_gap${g}h \

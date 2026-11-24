@@ -19,7 +19,7 @@ Variants (all K = 10 unless named otherwise; no validation tuning anywhere):
 Each registry: evaluate_registry (internal test + every target); target-level paired bootstrap
 of ``srs_known`` against each variant (per target and mean over targets).
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_srs_ablation.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_srs_ablation.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl --out-dir artifacts/v2/srs_ablation/f_mimic_iv_gap1h
 """
 

@@ -6,7 +6,7 @@ objective) -> SRS+T (srs_ap_t: + target schemas), and SRS+T against its variant 
 and the mean over the two real databases (eICU, HiRID). Registries are read, never re-selected; deployment with surrogate
 chains as in run_union_ap.py --phase evaluate.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_decomposition_pairs.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_decomposition_pairs.py
 """
 from __future__ import annotations
 

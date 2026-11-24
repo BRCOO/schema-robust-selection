@@ -4,7 +4,7 @@ experiment, every panel a different chart type and a different claim than the ta
 Workflow of the cs-experiment-figure-studio skill: a figure contract in each docstring, source data of every panel in
 paper/v3_assets/source_data/, PDF/SVG/PNG exports, Nature teal-green palette (style.py).
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/figs_v3b.py [x3 ... x7]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/figs_v3b.py [x3 ... x7]
 """
 from __future__ import annotations
 

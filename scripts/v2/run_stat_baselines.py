@@ -16,7 +16,7 @@ Models (choices on VAL AUPRC only, one TEST pass):
 * stats_l1_k{K}: the K statistics that enter first on an L1 path of class-balanced logistic regressions on standardized
   TRAIN statistics (largest C with at most K non-zero coefficients), then lr_stats on those K columns.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_stat_baselines.py [--labels ...]
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_stat_baselines.py [--labels ...]
 """
 from __future__ import annotations
 

@@ -6,7 +6,7 @@ for ``group`` every coarse group, is dropped independently with probability l, w
 seeded by (seed, family index, level index, draw). Every registry is deployed with surrogates
 (frozen probe, ``surrogates.refire_composite``) on the internal TEST split.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_stress.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_stress.py
 """
 
 from __future__ import annotations

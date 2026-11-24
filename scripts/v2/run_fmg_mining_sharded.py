@@ -12,7 +12,7 @@ Shard inputs are hard links (same volume) or copies of the materialized episode 
 a shard ``shock_episode_index.json``; the materialized directory itself is only read.
 
 Only when the machine is free:
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_fmg_mining_sharded.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_fmg_mining_sharded.py \\
       --input data/processed/v2/mimic-iv-gap1h --out-dir artifacts/v2/fmg_mining/mimic_iv_gap1h \\
       --shards 16 --workers 6 --delete-shard-caches
 """

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # K=20: budget-filling SRS against the K=20 established selectors (paired, internal + targets).
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=""
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 for g in 1 2 4; do
   E1=artifacts/v2/selection_baselines_k20/f_mimic_iv_gap${g}h/registries.json
   $PY scripts/v2/run_registry_pairs.py --pools artifacts/v2/comparison/f_mimic_iv_gap${g}h/pools.pkl \

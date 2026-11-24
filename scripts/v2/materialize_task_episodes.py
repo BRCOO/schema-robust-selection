@@ -7,7 +7,7 @@ shock_episode_index.json, per-episode .npy / _missing_mask.npy / .json, and
 materialization_manifest.json. The source directory is read by constructed path only.
 
 Only when the machine is free:
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/materialize_task_episodes.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/materialize_task_episodes.py \\
       --episodes artifacts/v2/task/mimic_iv/episodes_split.json \\
       --task-spec artifacts/v2/task/mimic_iv/task_spec.json \\
       --src-dir data/processed/mimic-iv-full-cw3-gap0-real/mimic-iv \\

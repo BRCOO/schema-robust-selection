@@ -17,7 +17,7 @@ Two phases, both reading the saved E3 runs (``e3_context``) and deploying every 
 Writes artifacts/v2/references/<root>/<label>/{registries.json, rows.csv, paired.csv} and
 artifacts/v2/seed_replicates/<label>/rows.csv.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_reference_registries.py --phase refs
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_reference_registries.py --phase refs
 """
 from __future__ import annotations
 

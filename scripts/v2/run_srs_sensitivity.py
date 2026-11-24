@@ -14,7 +14,7 @@ Every registry is deployed with its surrogates. Reported: internal test AUPRC, m
 the chosen q, and the overlap (|shared programs| / K) with the default registry, which is checked
 to be the E3 ``srs_c_val`` registry.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_srs_sensitivity.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_srs_sensitivity.py \\
       --e3-dir artifacts/v2/union/f_mimic_iv_gap1h --out-dir artifacts/v2/srs_sensitivity/f_mimic_iv_gap1h
 """
 

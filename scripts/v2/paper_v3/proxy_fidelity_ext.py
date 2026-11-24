@@ -6,7 +6,7 @@ grows along the schema-unaware likelihood-greedy path (the best candidate by cro
 schema); truth = gain in VAL AUPRC of an L2 logistic probe (class-balanced, C = 1) fit on TRAIN; proxies = mRMR's and NMIFS's
 scores and SRS's cross-validated estimate (``objective``). Spearman correlations with a Fisher-z 95% interval.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/proxy_fidelity_ext.py --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl --tag f_mimic_iv_gap1h
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/proxy_fidelity_ext.py --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl --tag f_mimic_iv_gap1h
 """
 import argparse
 import importlib.util

@@ -10,7 +10,7 @@ scripts/v2/run_fmg_train_only.py unchanged.
 mines the given v1 cache (all episodes, as v1 did) with and without the pre-filter and
 requires identical ranked programs, gates and QC; the run stops if they differ.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/prefilter_fmg_inputs.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/prefilter_fmg_inputs.py \\
       --contrastive-inputs artifacts/v2/fmg_mining/mimic_iv_gap1h/contrastive_inputs.json \\
       --split-manifest artifacts/v2/task/mimic_iv_gap1h/episodes_split.json \\
       --out artifacts/v2/fmg_mining/mimic_iv_gap1h/contrastive_inputs_train_prefiltered.json \\

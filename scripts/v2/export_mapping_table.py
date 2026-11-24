@@ -37,7 +37,7 @@ SOURCES.md: ``scripts/v2/make_paper_assets.py`` rewrites ``paper/v2_assets/SOURC
 every run, so this script never touches that file. It prints its provenance lines (same format
 as make_paper_assets) to stdout; append them to SOURCES.md after the last make_paper_assets run.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/export_mapping_table.py [--out-dir DIR]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/export_mapping_table.py [--out-dir DIR]
 """
 
 from __future__ import annotations

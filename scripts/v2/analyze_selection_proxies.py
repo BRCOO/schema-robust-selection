@@ -7,7 +7,7 @@ only, the fs_cv objective) when the candidate is added to the current set; proxy
 score I(q; y) - mean_s I(q; s). Spearman correlation over the remaining candidates at each of the
 first ``--steps`` steps of forward selection (the set grows by the best candidate by true value).
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/analyze_selection_proxies.py \
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/analyze_selection_proxies.py \
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl --out artifacts/v2/proxy_correlation/f_mimic_iv_gap1h.csv
 """
 

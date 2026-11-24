@@ -19,7 +19,7 @@ for the CV-based selectors (SRS+T, SRS, SRS+T with the likelihood decision; also
 statistic models of ``run_stat_baselines.py`` trained on the eICU source (``--phase stats``). Outputs under
 artifacts/v2/eicu_source2 and the roots union_esrc2_k*; summarize gives H1-H7 with intervals that add the CV-seed variance.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_eicu_source_study.py --phase build
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_eicu_source_study.py --phase build
 """
 from __future__ import annotations
 

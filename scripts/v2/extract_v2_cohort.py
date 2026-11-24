@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Extract a leakage-safe v2 cohort from raw MIMIC-IV / eICU / HiRID tables.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/extract_v2_cohort.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/extract_v2_cohort.py \\
       --source mimic_iv --raw-dir data/raw/mimic-iv/mimic-iv-3.1 \\
       --cache-dir data/processed/v2/cache/mimic_iv \\
       --out-dir data/processed/v2/extract/mimic_iv_gap1h --n-positive-patients 3000 --fmg-view

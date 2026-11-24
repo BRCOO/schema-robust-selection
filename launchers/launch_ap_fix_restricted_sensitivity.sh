@@ -3,9 +3,9 @@
 # restricted pools (H: care, care_obs; I: single generators on the large pools) into artifacts/v2/restricted_pools_fix,
 # then the hyper-parameter / seed sensitivity into artifacts/v2/srs_sensitivity_ap_fix (its default must reproduce the
 # re-selected srs_ap_t in artifacts/v2/union_ap_fix).
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 R=artifacts/v2/restricted_pools_fix
 LARGE=union_large_k10:f_mimic_iv_gap1h,union_large_k10:f_mimic_iv_aki_gap6h
 for spec in care care_obs; do

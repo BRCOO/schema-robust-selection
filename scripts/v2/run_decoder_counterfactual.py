@@ -12,7 +12,7 @@ Registries per method (K = 10): native top-K, the v2 selector with the a-priori 
 (``run_selector_analysis.base``), and the v2 selector with the validation-chosen weights from
 ``<selector-analysis-dir>/tuned.csv`` when that file exists.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_decoder_counterfactual.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_decoder_counterfactual.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl \\
       --selector-analysis-dir artifacts/v2/selector_analysis/f_mimic_iv_gap1h \\
       --out-dir artifacts/v2/decoder_counterfactual/f_mimic_iv_gap1h --selector-targets eicu,hirid

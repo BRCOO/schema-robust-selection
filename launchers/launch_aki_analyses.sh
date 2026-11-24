@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # AKI task (tag aki_gap6h): selector analysis -> E1 (K=10) -> E2 (+ unaware baselines) -> SRS ablation -> registry pairs.
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=""
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 T=aki_gap6h
 C=artifacts/v2/comparison/f_mimic_iv_$T
 while [ ! -f $C/comparison_rows.csv ]; do sleep 60; done

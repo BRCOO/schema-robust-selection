@@ -52,7 +52,7 @@ are deleted after each job, and the directory is removed at the end.
 
 Only when the machine is free enough (the full run takes about 1-2 hours):
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python \\
       scripts/v2/run_scalability_benchmark.py
 """
 

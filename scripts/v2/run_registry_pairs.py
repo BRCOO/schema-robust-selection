@@ -7,7 +7,7 @@ For every generator pool, the frozen bridge of each registry is fit exactly as i
 evaluate_registry, and A - B is bootstrapped (patient-clustered, paired) on the internal test
 split and on every target, plus the mean over targets (joint replicates).
 
-  /d/BRCoo/miniconda/python scripts/v2/run_registry_pairs.py --pools .../pools.pkl \\
+  python scripts/v2/run_registry_pairs.py --pools .../pools.pkl \\
       --a artifacts/v2/srs_ablation/f_mimic_iv_gap1h/registries.json:srs_source_only \\
       --b artifacts/v2/selection_baselines/f_mimic_iv_gap1h/registries.json:mrmr \\
       --out artifacts/v2/registry_pairs/f_mimic_iv_gap1h_fs_vs_mrmr.csv

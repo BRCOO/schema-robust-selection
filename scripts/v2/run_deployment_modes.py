@@ -23,7 +23,7 @@ Per registry, mode and target: AUPRC and log-loss (nats per episode). Paired pat
 bootstrap on the mean target AUPRC, per mode: SRS+T (``srs_c_val``) and SRS (``srs_c_unknown_val``)
 against mRMR, SRS+T against its schema-unaware ablation (``fs_cv``) and against L1 + schema dropout.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_deployment_modes.py [--runs union:f_mimic_iv_gap1h,...] [--drive-k 5,10,20]
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_deployment_modes.py [--runs union:f_mimic_iv_gap1h,...] [--drive-k 5,10,20]
 """
 
 from __future__ import annotations

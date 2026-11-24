@@ -9,7 +9,7 @@ and with regression imputation fitted for each schema (``kstats_soft``), as in r
 keeps its own absent features. SRS+T (CV seed 0, chains) comes from the study's dump. The recomputed ``kstats`` must equal
 the dump's. Joint patient bootstrap over the six runs. Outputs: artifacts/v2/stat_fallbacks/sites/.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 /d/BRCoo/miniconda/python scripts/v2/run_stat_fallbacks_sites.py --phase fit
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 python scripts/v2/run_stat_fallbacks_sites.py --phase fit
   ... --phase boot
 """
 from __future__ import annotations

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # E3 (union of generator pools) at budget K; usage: launch_union_k.sh <k> <label> [<label> ...]
-cd "/d/ALL PROJECT/Non-stationary times series" || exit 1
+cd "$(dirname "$0")/.." || exit 1
 export PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8 CUDA_VISIBLE_DEVICES=""
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 k=$1; shift
 if [ "$k" = "10" ]; then out=artifacts/v2/union; e1=artifacts/v2/selection_baselines; else out=artifacts/v2/union_k$k; e1=artifacts/v2/selection_baselines_k$k; fi
 for lab in "$@"; do

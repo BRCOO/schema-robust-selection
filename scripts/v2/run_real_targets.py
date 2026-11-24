@@ -4,7 +4,7 @@ databases (eICU, HiRID), with paired patient-clustered bootstraps of SRS+T and S
 their mean; plus each registry's AUPRC lift over prevalence at every target (for retention on lift). Registries are read, never
 re-selected; deployment with surrogate chains as in run_union_ap.py --phase evaluate.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_real_targets.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_real_targets.py
 """
 from __future__ import annotations
 

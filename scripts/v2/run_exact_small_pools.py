@@ -15,7 +15,7 @@ the exact optimum of
 and compare with exact greedy restricted to the same sub-pool (firing duplicates skipped, as in
 SRS). Reports J(greedy) / J(optimum) and whether greedy found the optimum.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_exact_small_pools.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_exact_small_pools.py
 """
 
 from __future__ import annotations

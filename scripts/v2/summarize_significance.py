@@ -11,7 +11,7 @@ the replicates <= 0 (resolution 2 / (B + 1)); ``normal`` = from z = diff / SE wi
 percentile interval width / 3.92. Holm (family = one run's tests of one reference) and
 Benjamini-Hochberg (all tests of one reference) adjustments at alpha = 0.05.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/summarize_significance.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/summarize_significance.py
 """
 
 from __future__ import annotations

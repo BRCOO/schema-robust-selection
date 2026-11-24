@@ -10,7 +10,7 @@ min(H(q), H(s)), i.e. by firing rate. Spearman correlation over the remaining ca
 of the first ``--steps`` steps, within each generator and on the union; the set grows by the best
 candidate by cross-validated log-likelihood, as in the original analysis.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/analyze_selection_proxies_heldout.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/analyze_selection_proxies_heldout.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl --out artifacts/v2/proxy_correlation/heldout_f_mimic_iv_gap1h.csv
 """
 

@@ -23,7 +23,7 @@ small tree and the registry complete the comparison:
 AUPRC at internal TEST, eICU, HiRID and the five controlled targets; a joint patient bootstrap over the 12 runs (MIMIC-IV,
 eICU and HiRID patients drawn once per replicate). Outputs: artifacts/v2/stat_fallbacks/.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 /d/BRCoo/miniconda/python scripts/v2/run_stat_fallbacks.py --phase fit
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 python scripts/v2/run_stat_fallbacks.py --phase fit
   ... --phase boot
 """
 from __future__ import annotations

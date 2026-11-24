@@ -4,7 +4,7 @@
 Internal source (default): patient-level train/val/test split + pre-registration.
 External source (--external): every episode is a held-out target episode (split "external").
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/split_extracted_cohort.py \\
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/split_extracted_cohort.py \\
       --extract-dir data/processed/v2/extract/mimic_iv_gap1h --out-dir artifacts/v2/task/x_mimic_iv_gap1h
   ... --extract-dir data/processed/v2/extract/eicu_gap1h --out-dir artifacts/v2/task/x_eicu_gap1h --external
 """

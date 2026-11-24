@@ -14,7 +14,7 @@ The candidate registries are the saved ones (q = 0: ``fs_cv`` / ``srs_c``; q = 0
 ``srs_c_unknown25`` / ``srs_c_robust25``), so nothing is re-selected; the outcome of each rule is
 the chosen registry's internal and mean target AUPRC as reported (composite deployment).
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_q_rule.py [--drive-k 5,10,20]
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_q_rule.py [--drive-k 5,10,20]
 """
 
 from __future__ import annotations

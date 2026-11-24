@@ -15,7 +15,7 @@ programs fire as at deployment, each coordinate resolved through its surrogate c
 AUPRC at internal TEST, eICU, HiRID and the five controlled targets; a joint patient bootstrap over the four settings
 (MIMIC-IV, eICU and HiRID patients drawn once per replicate) for the pre-chosen contrasts. Outputs: artifacts/v2/hybrid/.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 /d/BRCoo/miniconda/python scripts/v2/run_hybrid_programs_stats.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 python scripts/v2/run_hybrid_programs_stats.py
 """
 from __future__ import annotations
 

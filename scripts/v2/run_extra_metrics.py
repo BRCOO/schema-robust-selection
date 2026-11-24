@@ -6,7 +6,7 @@ likelihood-decision SRS+T, deployed with surrogate chains exactly as in run_unio
 
 Writes artifacts/v2/extra_metrics/<root>/<label>/{rows.csv, paired_targets.csv}.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_extra_metrics.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_extra_metrics.py
 """
 from __future__ import annotations
 

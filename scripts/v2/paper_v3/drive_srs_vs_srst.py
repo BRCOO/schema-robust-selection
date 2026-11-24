@@ -3,7 +3,7 @@ chains and bootstrapped exactly as the ablations of run_union_ap.py (same n_boot
 BLAS threads, the configuration of the reported evaluation (average precision splits exact ties by floating-point noise).
 
   OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 \\
-      /d/BRCoo/miniconda/python scripts/v2/paper_v3/drive_srs_vs_srst.py
+      python scripts/v2/paper_v3/drive_srs_vs_srst.py
 
 Output: artifacts/v2/union_ap/drive_k{K}/f_backblaze_seagate_gap2d/srs_pair.csv (read by tables.py, Table 6).
 """

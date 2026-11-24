@@ -11,7 +11,7 @@ setting are the ICU ones. Steps (resumable, each skipped when its output exists)
 
 Inputs from ``scripts/v2/extract_backblaze_cohort.py``. Outputs under ``artifacts/v2/drive/``.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_drive_track.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_drive_track.py
 """
 
 from __future__ import annotations

@@ -22,7 +22,7 @@ every registry that uses no target schema (plus ``mrmr_filter_known`` for refere
 draws for every registry, plain and composite deployment; ``tuning.csv``, ``registries.json``,
 ``manifest.json``.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_union_extra.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_union_extra.py \\
       --e3-dir artifacts/v2/union/f_mimic_iv_gap1h --out-dir artifacts/v2/union_extra/union/f_mimic_iv_gap1h
 """
 

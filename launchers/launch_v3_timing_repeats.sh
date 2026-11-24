@@ -2,9 +2,9 @@
 # Selection timing repeats on an idle workstation (review of the v3 experiments, round 2, item M7): two more repeats of the
 # size axis for SRS+T (AUPRC decision), the likelihood variant, exact greedy and the filters, then one AUPRC-decision run at
 # 10^5 candidates. Each repeat writes its own folder; the first repeat is artifacts/v2/selection_scalability.
-cd "/d/ALL PROJECT/Non-stationary times series"
+cd "$(dirname "$0")/.."
 export CUDA_VISIBLE_DEVICES="" PYTHONIOENCODING=utf-8 PYTHONDONTWRITEBYTECODE=1
-PY=/d/BRCoo/miniconda/python
+PY="${PYTHON:-python}"
 L=artifacts/v2/logs
 # Hold until the remaining heavy analyses are done, so that the timings run on an idle machine (touch $L/timing.go).
 while [ ! -f $L/timing.go ]; do sleep 60; done

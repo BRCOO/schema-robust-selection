@@ -2,7 +2,7 @@
 (primary), how many run through a surrogate, how many are zeroed. Registries are read, never re-selected; NMIFS is
 recomputed with the deterministic selector of the paper (selection_baselines.nmifs) because the drive runs did not save it.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/drive_executability.py
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/drive_executability.py
 """
 import importlib.util
 import json

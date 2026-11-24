@@ -28,7 +28,7 @@ with q = 0 and with q = 0.25 (the validation pick between the two, two probe fit
 ``l1_logistic``; ``mmrfs`` (delta = 1) and ``dpp`` (alpha = 1) -- reference implementations on firing
 sets, one value of their hyper-parameter (their validation tuning runs a grid of 4).
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_selection_scalability.py
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_selection_scalability.py
 """
 
 from __future__ import annotations

@@ -3,7 +3,7 @@
 Workflow of the cs-experiment-figure-studio skill: figure contract (claim, evidence chain, data map, metric direction) in
 the docstring of each function; source data of every panel written to paper/v3_assets/source_data/; PDF/SVG/PNG exports.
 
-  PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/paper_v3/figures.py [e1 e2 ...]
+  PYTHONDONTWRITEBYTECODE=1 python scripts/v2/paper_v3/figures.py [e1 e2 ...]
 """
 from __future__ import annotations
 

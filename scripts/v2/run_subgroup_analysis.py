@@ -35,7 +35,7 @@ Demographics are read-only; raw and cache paths come from
 Episodes with unknown sex (or age) are left out of that variable's subgroups and counted in
 subgroup_demographics.csv.
 
-  PYTHONDONTWRITEBYTECODE=1 CUDA_VISIBLE_DEVICES="" /d/BRCoo/miniconda/python scripts/v2/run_subgroup_analysis.py \\
+  PYTHONDONTWRITEBYTECODE=1 CUDA_VISIBLE_DEVICES="" python scripts/v2/run_subgroup_analysis.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl \\
       --supervised-dir artifacts/v2/supervised/f_mimic_iv_gap1h \\
       --out-dir artifacts/v2/subgroups/f_mimic_iv_gap1h --gap 1

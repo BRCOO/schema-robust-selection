@@ -28,7 +28,7 @@ Paired patient-clustered bootstrap: internal test AUPRC of ``--reference`` again
 other registry; mean target AUPRC (joint replicates) of the reference's composite against
 every registry's composite and plain deployment, and of every composite against its plain.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_union_selection.py \\
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_union_selection.py \\
       --pools artifacts/v2/comparison/f_mimic_iv_gap1h/pools.pkl \\
       --e1-dir artifacts/v2/selection_baselines/f_mimic_iv_gap1h --out-dir artifacts/v2/union/f_mimic_iv_gap1h
 """

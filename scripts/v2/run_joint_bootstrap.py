@@ -16,7 +16,7 @@ multiplicity per replicate, shared by every run, dataset and registry in which t
   with 95% intervals: point +- 1.96 sqrt(bootstrap variance of the seed-0 difference + between-seed variance of each
   seed mean); paper/v3_assets/source_data/q3_joint.csv.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_joint_bootstrap.py --phase dump
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_joint_bootstrap.py --phase dump
 """
 from __future__ import annotations
 

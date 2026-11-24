@@ -9,7 +9,7 @@ Timings: deriving the event tokens in SQL, all programs, and the shipped SRS+T r
 coordinate resolved against the target schema, i.e. the queries a site would run). A scale-up
 replicates the eICU episodes ``--scales`` times and times tokens plus the registry.
 
-  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 /d/BRCoo/miniconda/python scripts/v2/run_sql_execution.py [--runs union:f_mimic_iv_gap1h]
+  CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 python scripts/v2/run_sql_execution.py [--runs union:f_mimic_iv_gap1h]
 """
 
 from __future__ import annotations
